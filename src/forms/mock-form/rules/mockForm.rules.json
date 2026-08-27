@@ -1,0 +1,18 @@
+{
+  "formId": "mock-form",
+  "rules": [
+    {
+      "name": "spouseRelationshipEvidence",
+      "conditions": {
+        "all": [{ "fact": "relationshipType", "operator": "equal", "value": "Spouse" }]
+      },
+      "event": {
+        "type": "requireEvidence",
+        "params": {
+          "evidenceItems": ["marriageCertificateMock"],
+          "message": "Because you selected Spouse, a marriage certificate would typically be required."
+        }
+      }
+    }
+  ]
+}

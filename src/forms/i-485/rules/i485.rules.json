@@ -1,0 +1,58 @@
+{
+  "formId": "i-485",
+  "rules": [
+    {
+      "name": "showOtherNamesStep",
+      "conditions": {
+        "all": [{ "fact": "hasUsedOtherNames", "operator": "equal", "value": "Y" }]
+      },
+      "event": { "type": "showStep", "params": { "stepIds": ["other-names"] } }
+    },
+    {
+      "name": "revealSsnField",
+      "conditions": {
+        "all": [{ "fact": "hasSsnIssued", "operator": "equal", "value": "Y" }]
+      },
+      "event": { "type": "showField", "params": { "fieldNames": ["ssn"] } }
+    },
+    {
+      "name": "removalProceedingsEvidence",
+      "conditions": {
+        "all": [{ "fact": "inRemovalProceedings", "operator": "equal", "value": "Y" }]
+      },
+      "event": {
+        "type": "requireEvidence",
+        "params": {
+          "evidenceItems": ["eoirProceedingsDocuments"],
+          "message": "Because you are in removal/exclusion/rescission/deportation proceedings, EOIR-related documents are required."
+        }
+      }
+    },
+    {
+      "name": "marriageBasisEvidence",
+      "conditions": {
+        "all": [{ "fact": "eligibilityCategory", "operator": "equal", "value": "spouse_us_citizen" }]
+      },
+      "event": {
+        "type": "requireEvidence",
+        "params": {
+          "evidenceItems": ["marriageCertificate", "formI130", "formI864"],
+          "message": "Marriage-based applicants must submit a marriage certificate, an approved/concurrently-filed Form I-130, and a Form I-864 Affidavit of Support."
+        }
+      }
+    },
+    {
+      "name": "vawaSelfPetitionerEvidence",
+      "conditions": {
+        "all": [{ "fact": "eligibilityCategory", "operator": "in", "value": ["vawa_spouse", "vawa_child", "vawa_parent"] }]
+      },
+      "event": {
+        "type": "requireEvidence",
+        "params": {
+          "evidenceItems": ["vawaSelfPetitionEvidence"],
+          "message": "VAWA self-petitioners should submit evidence supporting the underlying self-petition (Form I-360 approval or receipt notice)."
+        }
+      }
+    }
+  ]
+}
