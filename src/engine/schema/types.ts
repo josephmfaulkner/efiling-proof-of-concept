@@ -59,6 +59,8 @@ export interface StepSchema {
   description?: string;
   fields: FieldSchema[];
   visibleWhen?: RuleRef;
+  /** Purely presentational grouping label for the sidebar nav (e.g. "About You"). Steps sharing a section render as one expandable group, myUSCIS-style. */
+  section?: string;
 }
 
 export interface FormManifest {

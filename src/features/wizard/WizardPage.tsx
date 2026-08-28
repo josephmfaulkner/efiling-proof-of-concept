@@ -1,13 +1,14 @@
 import { useEffect, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useActorRef, useSelector } from '@xstate/react';
+import { Box, Paper, Typography } from '@mui/material';
 import { getForm } from '../../engine/registry/formRegistry';
 import { buildWizardMachine } from '../../engine/machine/buildWizardMachine';
 import { loadSnapshot, persistActorOnChange, saveSnapshot } from '../../engine/persistence/wizardPersistence';
 import { getApplication, updateApplication } from '../../engine/persistence/applicationsRegistry';
 import { Layout } from '../../components/ui/Layout';
-import { Card } from '../../components/ui/Card';
-import { Stepper } from '../../components/ui/Stepper';
+import { uswds } from '../../theme';
+import { SidebarNav } from './SidebarNav';
 import { WizardStepView } from './WizardStepView';
 
 interface WizardPageInnerProps {
@@ -58,25 +59,45 @@ function WizardPageInner({ applicationId, stepIdFromUrl, formId }: WizardPageInn
   if (!step) return null; // mid-navigation to /evidence, or a not-yet-rendered redirect above
 
   return (
-    <Layout>
-      <Card>
-        <Stepper steps={manifest.steps} currentStepId={currentStepId} />
-        <WizardStepView
-          // Forces a fresh mount (fresh useForm()) per step. Without this, revisiting a
-          // step within the same WizardPage session (Back, or continuing forward again
-          // after a Review "Edit") reused the *first* step's useForm instance — RHF only
-          // applies `defaultValues` at that instance's initial mount, so every later step
-          // rendered with blank/stale field state instead of its real context.answers.
-          key={step.id}
-          step={step}
-          manifest={manifest}
-          rules={rules}
-          context={snapshot.context}
-          isFirstStep={currentStepId === firstStepId}
-          onBackToDashboard={() => navigate('/dashboard')}
-          send={(event) => actorRef.send(event)}
-        />
-      </Card>
+    <Layout maxWidth="lg">
+      <Paper variant="outlined" sx={{ display: 'flex', minHeight: 560 }}>
+        <Box
+          sx={{
+            width: 280,
+            flexShrink: 0,
+            bgcolor: uswds.baseLightest,
+            borderRight: `1px solid ${uswds.baseLighter}`,
+            py: 3,
+          }}
+        >
+          <Typography variant="overline" sx={{ px: 2, color: uswds.ink, fontWeight: 700 }}>
+            {manifest.shortTitle}
+          </Typography>
+          <SidebarNav
+            steps={manifest.steps}
+            currentStepId={currentStepId}
+            onNavigate={(stepId) => actorRef.send({ type: 'GOTO', stepId })}
+          />
+        </Box>
+
+        <Box sx={{ flex: 1, p: { xs: 3, sm: 5 } }}>
+          <WizardStepView
+            // Forces a fresh mount (fresh useForm()) per step. Without this, revisiting a
+            // step within the same WizardPage session (Back, or continuing forward again
+            // after a Review "Edit") reused the *first* step's useForm instance — RHF only
+            // applies `defaultValues` at that instance's initial mount, so every later step
+            // rendered with blank/stale field state instead of its real context.answers.
+            key={step.id}
+            step={step}
+            manifest={manifest}
+            rules={rules}
+            context={snapshot.context}
+            isFirstStep={currentStepId === firstStepId}
+            onBackToDashboard={() => navigate('/dashboard')}
+            send={(event) => actorRef.send(event)}
+          />
+        </Box>
+      </Paper>
     </Layout>
   );
 }
@@ -88,9 +109,9 @@ export function WizardPage() {
   if (!application) {
     return (
       <Layout>
-        <Card>
-          <p className="text-slate-700">We couldn't find that application. It may have been removed.</p>
-        </Card>
+        <Paper variant="outlined" sx={{ p: 4 }}>
+          <Typography>We couldn&apos;t find that application. It may have been removed.</Typography>
+        </Paper>
       </Layout>
     );
   }

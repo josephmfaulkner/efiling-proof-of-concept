@@ -2,6 +2,7 @@ import type { StepSchema } from '../../../engine/schema/types';
 
 export const citizenshipIdentifiersStep: StepSchema = {
   id: 'citizenship-identifiers',
+  section: 'About You',
   title: 'Citizenship & Identifiers',
   description: 'Form I-485, Part 1, Items 8, 4/9, and 19.',
   fields: [

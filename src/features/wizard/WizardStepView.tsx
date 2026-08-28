@@ -1,12 +1,14 @@
 import { useMemo } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Typography } from '@mui/material';
 import type { StepSchema, FormManifest } from '../../engine/schema/types';
 import type { RuleDocument } from '../../engine/rules/types';
 import type { WizardContext, WizardEvent } from '../../engine/machine/buildWizardMachine';
 import { buildStepZodSchema } from '../../engine/schema/buildZodSchema';
 import { evaluateRules, useRuleEvaluation } from '../../engine/rules/rulesEngine';
 import { SchemaField } from '../../components/fields/SchemaField';
+import { InfoCallout } from '../../components/layout/InfoCallout';
 import { WizardNav } from './WizardNav';
 
 interface WizardStepViewProps {
@@ -67,8 +69,10 @@ export function WizardStepView({ step, manifest, rules, context, isFirstStep, on
   return (
     <FormProvider {...methods}>
       <form onSubmit={methods.handleSubmit(onValid)} noValidate>
-        <h1 className="mb-1 text-2xl font-semibold text-slate-900">{step.title}</h1>
-        {step.description && <p className="mb-6 text-slate-600">{step.description}</p>}
+        <Typography variant="h2" sx={{ mb: step.description ? 2 : 3 }}>
+          {step.title}
+        </Typography>
+        {step.description && <InfoCallout>{step.description}</InfoCallout>}
 
         {step.fields.map((field) => (
           <SchemaField

@@ -2,6 +2,7 @@ import type { StepSchema } from '../../../engine/schema/types';
 
 export const biographicInfoStep: StepSchema = {
   id: 'biographic-info',
+  section: 'About You',
   title: 'Biographic Information',
   description: 'Form I-485, Part 1, Items 3, 6, and 7.',
   fields: [

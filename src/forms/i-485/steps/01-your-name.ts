@@ -2,6 +2,7 @@ import type { StepSchema } from '../../../engine/schema/types';
 
 export const yourNameStep: StepSchema = {
   id: 'your-name',
+  section: 'About You',
   title: 'Your Legal Name',
   description: 'Form I-485, Part 1, Item 1. Use your current legal name — not a nickname.',
   fields: [

@@ -1,4 +1,6 @@
+import { Box, Typography } from '@mui/material';
 import type { ApplicationStatus } from '../../engine/persistence/applicationsRegistry';
+import { uswds } from '../../theme';
 
 /** A Domino's-order-tracker-style bar — mirrors the user's mental model of "where's my order" more than a generic progress bar. */
 const STAGES: Array<{ status: ApplicationStatus; label: string }> = [
@@ -13,24 +15,41 @@ export function ProgressTracker({ status }: { status: ApplicationStatus }) {
   const currentIndex = STAGES.findIndex((s) => s.status === status);
 
   return (
-    <div className="flex items-center">
+    <Box sx={{ display: 'flex', alignItems: 'center' }}>
       {STAGES.map((stage, i) => (
-        <div key={stage.status} className="flex flex-1 items-center last:flex-none">
-          <div className="flex flex-col items-center">
-            <div
-              className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold ${
-                i <= currentIndex ? 'bg-blue-700 text-white' : 'bg-slate-200 text-slate-500'
-              }`}
+        <Box
+          key={stage.status}
+          sx={{ display: 'flex', alignItems: 'center', flex: i < STAGES.length - 1 ? 1 : '0 0 auto' }}
+        >
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <Box
+              sx={{
+                display: 'flex',
+                height: 32,
+                width: 32,
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: '50%',
+                fontSize: '0.75rem',
+                fontWeight: 700,
+                bgcolor: i <= currentIndex ? uswds.primary : uswds.baseLighter,
+                color: i <= currentIndex ? uswds.white : uswds.base,
+              }}
             >
               {i + 1}
-            </div>
-            <span className={`mt-1 w-20 text-center text-xs ${i <= currentIndex ? 'text-slate-900' : 'text-slate-400'}`}>
+            </Box>
+            <Typography
+              variant="caption"
+              sx={{ mt: 0.5, width: 80, textAlign: 'center', color: i <= currentIndex ? uswds.inkDarkest : uswds.baseLight }}
+            >
               {stage.label}
-            </span>
-          </div>
-          {i < STAGES.length - 1 && <div className={`mx-1 h-0.5 flex-1 ${i < currentIndex ? 'bg-blue-700' : 'bg-slate-200'}`} />}
-        </div>
+            </Typography>
+          </Box>
+          {i < STAGES.length - 1 && (
+            <Box sx={{ mx: 1, height: 2, flex: 1, bgcolor: i < currentIndex ? uswds.primary : uswds.baseLighter }} />
+          )}
+        </Box>
       ))}
-    </div>
+    </Box>
   );
 }

@@ -1,12 +1,11 @@
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { Box, Button, Paper, Stack, Typography } from '@mui/material';
 import { getApplication, updateApplication } from '../../engine/persistence/applicationsRegistry';
 import { getForm } from '../../engine/registry/formRegistry';
 import { loadSnapshot, extractContext } from '../../engine/persistence/wizardPersistence';
 import { fillPdfTemplate } from '../../engine/pdf/fillPdf';
 import { Layout } from '../../components/ui/Layout';
-import { Card } from '../../components/ui/Card';
-import { Button } from '../../components/ui/Button';
 
 export function DownloadPage() {
   const { applicationId = '' } = useParams();
@@ -18,9 +17,9 @@ export function DownloadPage() {
   if (!application) {
     return (
       <Layout>
-        <Card>
-          <p className="text-slate-700">We couldn't find that application.</p>
-        </Card>
+        <Paper variant="outlined" sx={{ p: 4 }}>
+          <Typography>We couldn&apos;t find that application.</Typography>
+        </Paper>
       </Layout>
     );
   }
@@ -50,40 +49,52 @@ export function DownloadPage() {
 
   return (
     <Layout>
-      <Card>
-        <h1 className="mb-1 text-2xl font-semibold text-slate-900">Generate Your Filled I-485</h1>
-        <p className="mb-6 text-slate-600">
-          This fills the real Form I-485 PDF template entirely in your browser using pdf-lib — nothing is sent to a
-          server.
-        </p>
+      <Paper variant="outlined" sx={{ p: { xs: 3, sm: 5 } }}>
+        <Typography variant="h2" sx={{ mb: 1 }}>
+          Generate Your Filled {manifest.shortTitle}
+        </Typography>
+        <Typography sx={{ mb: 3, color: 'text.secondary' }}>
+          This fills the real PDF template entirely in your browser using pdf-lib — nothing is
+          sent to a server.
+        </Typography>
 
         {!pdfUrl && (
-          <Button onClick={handleGenerate} disabled={isGenerating}>
+          <Button variant="contained" onClick={handleGenerate} disabled={isGenerating}>
             {isGenerating ? 'Generating…' : 'Generate PDF'}
           </Button>
         )}
 
-        {errorMessage && <p className="mt-4 text-sm text-red-600">{errorMessage}</p>}
+        {errorMessage && (
+          <Typography variant="body2" sx={{ mt: 2, color: 'error.main' }}>
+            {errorMessage}
+          </Typography>
+        )}
 
         {pdfUrl && (
-          <div className="mt-4">
-            <embed src={pdfUrl} type="application/pdf" className="h-[600px] w-full rounded-md border border-slate-200" />
-            <div className="mt-4 flex gap-3">
-              <a
+          <Box sx={{ mt: 3 }}>
+            <Box
+              component="embed"
+              src={pdfUrl}
+              type="application/pdf"
+              sx={{ height: 600, width: '100%', borderRadius: 1, border: '1px solid', borderColor: 'divider' }}
+            />
+            <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
+              <Button
+                component="a"
                 href={pdfUrl}
                 download={`${application.formId}-filled.pdf`}
                 onClick={() => updateApplication(applicationId, { status: 'downloaded' })}
-                className="rounded-md bg-blue-700 px-4 py-2 font-medium text-white hover:bg-blue-800"
+                variant="contained"
               >
                 Download PDF
-              </a>
-              <Button variant="secondary" onClick={handleGenerate} disabled={isGenerating}>
+              </Button>
+              <Button variant="outlined" onClick={handleGenerate} disabled={isGenerating}>
                 Regenerate
               </Button>
-            </div>
-          </div>
+            </Stack>
+          </Box>
         )}
-      </Card>
+      </Paper>
     </Layout>
   );
 }

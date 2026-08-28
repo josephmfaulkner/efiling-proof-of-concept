@@ -27,6 +27,7 @@ export const ELIGIBILITY_CATEGORY_OPTIONS = [
 
 export const applicationCategoryStep: StepSchema = {
   id: 'application-category',
+  section: 'Application Type',
   title: 'Application Category',
   description: 'Form I-485, Part 2, Items 1 and 3.a — this is what drives which evidence you’ll need to submit.',
   fields: [

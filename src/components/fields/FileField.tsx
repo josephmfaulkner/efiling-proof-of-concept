@@ -1,6 +1,15 @@
+import { Box, List, ListItem, Typography } from '@mui/material';
 import { Controller, type Control, type FieldValues } from 'react-hook-form';
 import type { FieldSchema } from '../../engine/schema/types';
-import { FieldShell } from './FieldShell';
+import { uswds } from '../../theme';
+import { DropZone } from './DropZone';
+
+const REQUIREMENTS = [
+  'Clear and readable',
+  'Accepted file formats: JPG, JPEG, PDF, TIF, or TIFF',
+  'No encrypted or password-protected files',
+  'Maximum size: 12MB per file',
+];
 
 interface FileFieldProps {
   field: FieldSchema;
@@ -12,33 +21,40 @@ interface FileFieldProps {
 /** No backend in this PoC — this simulates "upload" by holding the File in memory only. */
 export function FileField({ field, required, control, error }: FileFieldProps) {
   return (
-    <FieldShell
-      name={field.name}
-      label={field.label}
-      required={required}
-      helpText={field.helpText ?? 'Demo only — the file name is recorded, nothing is actually uploaded.'}
-      error={error}
-    >
+    <Box sx={{ my: 2 }}>
+      <Typography component="label" htmlFor={field.name} sx={{ fontWeight: 600, display: 'block', mb: 0.5 }}>
+        {field.label}
+        {required && <Box component="span" sx={{ color: 'error.main' }}> *</Box>}
+      </Typography>
+      {field.helpText && (
+        <Typography variant="body2" sx={{ color: uswds.ink, mb: 1.5 }}>
+          {field.helpText}
+        </Typography>
+      )}
+
+      <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 0.5 }}>
+        File requirements
+      </Typography>
+      <List dense sx={{ listStyleType: 'disc', pl: 3, mb: 2, py: 0 }}>
+        {REQUIREMENTS.map((r) => (
+          <ListItem key={r} sx={{ display: 'list-item', p: 0 }}>
+            <Typography variant="body2" sx={{ color: uswds.inkDarker }}>
+              {r}
+            </Typography>
+          </ListItem>
+        ))}
+      </List>
+
       <Controller
         name={field.name}
         control={control}
-        render={({ field: { onChange, value, ref } }) => (
-          <div>
-            <input
-              id={field.name}
-              ref={ref}
-              type="file"
-              className="block w-full text-sm text-slate-700 file:mr-4 file:rounded-md file:border-0 file:bg-blue-50 file:px-3 file:py-2 file:text-blue-700 hover:file:bg-blue-100"
-              onChange={(e) => onChange(e.target.files?.[0])}
-            />
-            {value instanceof File && (
-              <p className="mt-1 text-sm text-slate-600">
-                Attached: {value.name} ({Math.round(value.size / 1024)} KB)
-              </p>
-            )}
-          </div>
-        )}
+        render={({ field: { onChange, value } }) => <DropZone id={field.name} value={value} onChange={onChange} />}
       />
-    </FieldShell>
+      {error && (
+        <Typography variant="caption" sx={{ color: 'error.main', display: 'block', mt: 0.5 }}>
+          {error}
+        </Typography>
+      )}
+    </Box>
   );
 }

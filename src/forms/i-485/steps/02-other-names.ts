@@ -2,6 +2,7 @@ import type { StepSchema } from '../../../engine/schema/types';
 
 export const otherNamesStep: StepSchema = {
   id: 'other-names',
+  section: 'About You',
   title: 'Other Names Used',
   description: 'Form I-485, Part 1, Item 2. Provide all other names you have ever used.',
   visibleWhen: { event: 'showStep' },

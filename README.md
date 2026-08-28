@@ -50,6 +50,22 @@ form works) and walk through the wizard.
   sequencing as one state per step, generated entirely from a form's
   `manifest.steps` — no per-form transition logic anywhere.
 
+## Look and feel
+
+The UI is built with [MUI](https://mui.com/) on a theme (`src/theme.ts`) approximating
+the U.S. Web Design System's default tokens, styled to match myUSCIS's real guided
+filing screens: a `.gov`-banner-style strip, a masthead, an info-callout pattern for
+step context, a sidebar section/step tree you can navigate back through, and a
+dashed drop-zone for evidence uploads. Two deliberate departures from literal
+myUSCIS parity:
+
+- **No agency seal.** The masthead uses a generic mark instead of the real USCIS/DHS
+  emblem — that's a protected government insignia, not a reusable design asset like
+  USWDS itself is.
+- **No repeating "Add address" list/table pattern.** That's a genuinely new field
+  type (a repeating group), not a look-and-feel change — left as a natural follow-up
+  rather than half-built here.
+
 ## Hard-won findings about the real I-485 PDF
 
 The official USCIS-distributed I-485 (`https://www.uscis.gov/.../i-485.pdf`) is

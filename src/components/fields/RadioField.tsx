@@ -1,6 +1,13 @@
+import {
+  FormControl,
+  FormControlLabel,
+  FormHelperText,
+  FormLabel,
+  Radio,
+  RadioGroup,
+} from '@mui/material';
 import type { UseFormRegister, FieldValues } from 'react-hook-form';
 import type { FieldSchema } from '../../engine/schema/types';
-import { FieldShell } from './FieldShell';
 
 interface RadioFieldProps {
   field: FieldSchema;
@@ -11,15 +18,21 @@ interface RadioFieldProps {
 
 export function RadioField({ field, required, register, error }: RadioFieldProps) {
   return (
-    <FieldShell name={field.name} label={field.label} required={required} helpText={field.helpText} error={error}>
-      <div className="flex gap-6" role="radiogroup" aria-invalid={Boolean(error)}>
+    <FormControl component="fieldset" required={required} error={Boolean(error)} margin="normal" fullWidth>
+      <FormLabel component="legend" sx={{ fontWeight: 600, color: 'text.primary', '&.Mui-focused': { color: 'text.primary' } }}>
+        {field.label}
+      </FormLabel>
+      <RadioGroup row>
         {(field.options ?? []).map((opt) => (
-          <label key={opt.value} className="flex items-center gap-2 text-slate-800">
-            <input type="radio" value={opt.value} className="h-4 w-4" {...register(field.name)} />
-            {opt.label}
-          </label>
+          <FormControlLabel
+            key={opt.value}
+            value={opt.value}
+            control={<Radio {...register(field.name)} />}
+            label={opt.label}
+          />
         ))}
-      </div>
-    </FieldShell>
+      </RadioGroup>
+      {(error || field.helpText) && <FormHelperText>{error ?? field.helpText}</FormHelperText>}
+    </FormControl>
   );
 }

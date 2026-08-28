@@ -1,33 +1,30 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { Box, Button, Paper, Stack, Typography } from '@mui/material';
 import { getApplication, updateApplication } from '../../engine/persistence/applicationsRegistry';
 import { getForm } from '../../engine/registry/formRegistry';
 import { loadSnapshot, extractContext } from '../../engine/persistence/wizardPersistence';
 import type { EvidenceItem } from '../../engine/evidence/types';
 import { Layout } from '../../components/ui/Layout';
-import { Card } from '../../components/ui/Card';
-import { Button } from '../../components/ui/Button';
+import { InfoCallout } from '../../components/layout/InfoCallout';
+import { DropZone } from '../../components/fields/DropZone';
+import { uswds } from '../../theme';
 
 function EvidenceRow({ item }: { item: EvidenceItem }) {
-  const [attached, setAttached] = useState<File | null>(null);
+  const [attached, setAttached] = useState<File | undefined>(undefined);
 
   return (
-    <li className="rounded-md border border-slate-200 p-4">
-      <p className="font-medium text-slate-900">{item.title}</p>
-      {item.description && <p className="mt-1 text-sm text-slate-500">{item.description}</p>}
-      <div className="mt-3">
-        <input
-          type="file"
-          className="block text-sm text-slate-700 file:mr-4 file:rounded-md file:border-0 file:bg-blue-50 file:px-3 file:py-2 file:text-blue-700 hover:file:bg-blue-100"
-          onChange={(e) => setAttached(e.target.files?.[0] ?? null)}
-        />
-        {attached && (
-          <p className="mt-1 text-sm text-slate-600">
-            Attached: {attached.name} ({Math.round(attached.size / 1024)} KB) — demo only, nothing is actually uploaded.
-          </p>
-        )}
-      </div>
-    </li>
+    <Paper variant="outlined" sx={{ p: 2.5 }}>
+      <Typography sx={{ fontWeight: 600 }}>{item.title}</Typography>
+      {item.description && (
+        <Typography variant="body2" sx={{ mt: 0.5, mb: 1.5, color: uswds.ink }}>
+          {item.description}
+        </Typography>
+      )}
+      <Box sx={{ mt: 1.5 }}>
+        <DropZone id={`evidence-${item.key}`} value={attached} onChange={setAttached} />
+      </Box>
+    </Paper>
   );
 }
 
@@ -39,9 +36,9 @@ export function EvidenceChecklistPage() {
   if (!application) {
     return (
       <Layout>
-        <Card>
-          <p className="text-slate-700">We couldn't find that application.</p>
-        </Card>
+        <Paper variant="outlined" sx={{ p: 4 }}>
+          <Typography>We couldn&apos;t find that application.</Typography>
+        </Paper>
       </Layout>
     );
   }
@@ -60,35 +57,44 @@ export function EvidenceChecklistPage() {
 
   return (
     <Layout>
-      <Card>
-        <h1 className="mb-1 text-2xl font-semibold text-slate-900">Evidence Checklist</h1>
-        <p className="mb-6 text-slate-600">
-          Based on your answers, here's what you'll likely need to submit. This list is illustrative only — it is not a
-          complete or legally vetted checklist for your specific case.
-        </p>
+      <Paper variant="outlined" sx={{ p: { xs: 3, sm: 5 } }}>
+        <Typography variant="h2" sx={{ mb: 2 }}>
+          Evidence Checklist
+        </Typography>
+        <InfoCallout>
+          Based on your answers, here&apos;s what you&apos;ll likely need to submit. This list is
+          illustrative only — it is not a complete or legally vetted checklist for your specific
+          case.
+        </InfoCallout>
 
-        <h2 className="mb-2 text-sm font-semibold tracking-wide text-slate-500 uppercase">Always required</h2>
-        <ul className="mb-6 space-y-3">
+        <Typography variant="overline" sx={{ display: 'block', color: uswds.ink, fontWeight: 700, mb: 1 }}>
+          Always required
+        </Typography>
+        <Stack spacing={1.5} sx={{ mb: 4 }}>
           {alwaysItems.map((item) => (
             <EvidenceRow key={item.key} item={item} />
           ))}
-        </ul>
+        </Stack>
 
         {conditionalItems.length > 0 && (
           <>
-            <h2 className="mb-2 text-sm font-semibold tracking-wide text-slate-500 uppercase">Based on your answers</h2>
-            <ul className="mb-6 space-y-3">
+            <Typography variant="overline" sx={{ display: 'block', color: uswds.ink, fontWeight: 700, mb: 1 }}>
+              Based on your answers
+            </Typography>
+            <Stack spacing={1.5} sx={{ mb: 4 }}>
               {conditionalItems.map((item) => (
                 <EvidenceRow key={item.key} item={item} />
               ))}
-            </ul>
+            </Stack>
           </>
         )}
 
-        <div className="mt-8 flex justify-end border-t border-slate-200 pt-6">
-          <Button onClick={handleContinue}>Continue to Review</Button>
-        </div>
-      </Card>
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', borderTop: `1px solid ${uswds.baseLighter}`, pt: 3, mt: 2 }}>
+          <Button variant="contained" onClick={handleContinue}>
+            Continue to Review
+          </Button>
+        </Box>
+      </Paper>
     </Layout>
   );
 }

@@ -3,6 +3,7 @@ import { US_STATE_OPTIONS } from './usStates';
 
 export const passportTravelDocStep: StepSchema = {
   id: 'passport-travel-doc',
+  section: 'Immigration History',
   title: 'Passport & Travel Document',
   description: 'Form I-485, Part 1, Item 10. If you last entered using a passport or travel document, provide its details.',
   fields: [

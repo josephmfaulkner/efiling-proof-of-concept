@@ -1,9 +1,8 @@
 import { useNavigate } from 'react-router-dom';
+import { Box, Button, Paper, Typography } from '@mui/material';
 import { listForms, getForm } from '../../engine/registry/formRegistry';
 import { createApplication } from '../../engine/persistence/applicationsRegistry';
 import { Layout } from '../../components/ui/Layout';
-import { Card } from '../../components/ui/Card';
-import { Button } from '../../components/ui/Button';
 
 export function LandingPage() {
   const navigate = useNavigate();
@@ -16,24 +15,35 @@ export function LandingPage() {
   }
 
   return (
-    <Layout>
-      <div className="mb-10 text-center">
-        <h1 className="mb-3 text-3xl font-bold text-slate-900">Guided Filing, Without the Guesswork</h1>
-        <p className="mx-auto max-w-xl text-slate-600">
-          Answer a few questions at a time. We track what evidence you'll need and generate your filled, ready-to-review
-          PDF at the end — like tracking an order, not wrangling a government form.
-        </p>
-      </div>
+    <Layout maxWidth="lg">
+      <Box sx={{ mb: 6, textAlign: 'center' }}>
+        <Typography variant="h1" sx={{ mb: 2 }}>
+          Guided Filing, Without the Guesswork
+        </Typography>
+        <Typography variant="body1" sx={{ maxWidth: 560, mx: 'auto', color: 'text.secondary' }}>
+          Answer a few questions at a time. We track what evidence you&apos;ll need and generate
+          your filled, ready-to-review PDF at the end — like tracking an order, not wrangling a
+          government form.
+        </Typography>
+      </Box>
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <Box sx={{ display: 'grid', gap: 3, gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' } }}>
         {forms.map((manifest) => (
-          <Card key={manifest.id}>
-            <h2 className="mb-1 text-lg font-semibold text-slate-900">{manifest.shortTitle}</h2>
-            {manifest.description && <p className="mb-4 text-sm text-slate-600">{manifest.description}</p>}
-            <Button onClick={() => handleStart(manifest.id)}>Start my application</Button>
-          </Card>
+          <Paper key={manifest.id} variant="outlined" sx={{ p: 3 }}>
+            <Typography variant="h3" sx={{ mb: 1 }}>
+              {manifest.shortTitle}
+            </Typography>
+            {manifest.description && (
+              <Typography variant="body2" sx={{ mb: 2, color: 'text.secondary' }}>
+                {manifest.description}
+              </Typography>
+            )}
+            <Button variant="contained" onClick={() => handleStart(manifest.id)}>
+              Start my application
+            </Button>
+          </Paper>
         ))}
-      </div>
+      </Box>
     </Layout>
   );
 }

@@ -1,5 +1,5 @@
+import { Box, Button, Divider } from '@mui/material';
 import { useFormContext } from 'react-hook-form';
-import { Button } from '../../components/ui/Button';
 
 interface WizardNavProps {
   isFirstStep: boolean;
@@ -12,13 +12,16 @@ export function WizardNav({ isFirstStep, onBack }: WizardNavProps) {
   } = useFormContext();
 
   return (
-    <div className="mt-8 flex items-center justify-between border-t border-slate-200 pt-6">
-      <Button type="button" variant="ghost" onClick={onBack}>
-        {isFirstStep ? 'Save & exit to dashboard' : 'Back'}
-      </Button>
-      <Button type="submit" disabled={isSubmitting}>
-        Continue
-      </Button>
-    </div>
+    <>
+      <Divider sx={{ mt: 4, mb: 3 }} />
+      <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+        <Button type="button" variant="outlined" onClick={onBack}>
+          {isFirstStep ? 'Save & exit to dashboard' : 'Back'}
+        </Button>
+        <Button type="submit" variant="contained" disabled={isSubmitting}>
+          Next
+        </Button>
+      </Box>
+    </>
   );
 }

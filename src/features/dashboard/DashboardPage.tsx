@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
+import { Box, Paper, Stack, Typography } from '@mui/material';
 import { listApplications, type ApplicationRecord } from '../../engine/persistence/applicationsRegistry';
 import { Layout } from '../../components/ui/Layout';
-import { Card } from '../../components/ui/Card';
 import { ProgressTracker } from './ProgressTracker';
 
 function resumeRoute(app: ApplicationRecord): string {
@@ -22,30 +22,39 @@ export function DashboardPage() {
   const applications = listApplications();
 
   return (
-    <Layout>
-      <h1 className="mb-6 text-2xl font-semibold text-slate-900">My Applications</h1>
+    <Layout maxWidth="lg">
+      <Typography variant="h1" sx={{ mb: 3 }}>
+        My Applications
+      </Typography>
 
       {applications.length === 0 ? (
-        <Card>
-          <p className="mb-4 text-slate-600">You don't have any applications yet.</p>
-          <Link to="/" className="font-medium text-blue-700 hover:underline">
+        <Paper variant="outlined" sx={{ p: 4 }}>
+          <Typography sx={{ mb: 2, color: 'text.secondary' }}>You don&apos;t have any applications yet.</Typography>
+          <Typography component={Link} to="/" sx={{ color: 'primary.main', fontWeight: 600, textDecoration: 'none' }}>
             Start one from the home page →
-          </Link>
-        </Card>
+          </Typography>
+        </Paper>
       ) : (
-        <div className="space-y-4">
+        <Stack spacing={2}>
           {applications.map((app) => (
-            <Card key={app.id}>
-              <div className="mb-4 flex items-center justify-between">
-                <h2 className="font-semibold text-slate-900">{app.formTitle}</h2>
-                <Link to={resumeRoute(app)} className="text-sm font-medium text-blue-700 hover:underline">
+            <Paper key={app.id} variant="outlined" sx={{ p: 3 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+                <Typography variant="h3" sx={{ fontSize: '1.05rem' }}>
+                  {app.formTitle}
+                </Typography>
+                <Typography
+                  component={Link}
+                  to={resumeRoute(app)}
+                  variant="body2"
+                  sx={{ color: 'primary.main', fontWeight: 600, textDecoration: 'none' }}
+                >
                   {app.status === 'downloaded' ? 'View again' : 'Resume'} →
-                </Link>
-              </div>
+                </Typography>
+              </Box>
               <ProgressTracker status={app.status} />
-            </Card>
+            </Paper>
           ))}
-        </div>
+        </Stack>
       )}
     </Layout>
   );
