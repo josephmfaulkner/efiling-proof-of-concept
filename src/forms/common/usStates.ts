@@ -1,4 +1,4 @@
-import type { SelectOption } from '../../../engine/schema/types';
+import type { SelectOption } from '../../engine/schema/types';
 
 /** The exact option list read off the real I-485 template's state dropdown widgets. */
 export const US_STATE_OPTIONS: SelectOption[] = [

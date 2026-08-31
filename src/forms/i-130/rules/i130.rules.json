@@ -1,0 +1,138 @@
+{
+  "formId": "i-130",
+  "rules": [
+    {
+      "name": "revealPreparerInterpreterSubQuestions",
+      "conditions": { "all": [{ "fact": "hasHelper", "operator": "equal", "value": "Y" }] },
+      "event": { "type": "showField", "params": { "fieldNames": ["helperHasPreparer", "helperHasInterpreter"] } }
+    },
+    {
+      "name": "showPreparerInformationStep",
+      "conditions": { "all": [{ "fact": "helperHasPreparer", "operator": "equal", "value": "Y" }] },
+      "event": { "type": "showStep", "params": { "stepIds": ["preparer-information"] } }
+    },
+    {
+      "name": "showInterpreterInformationStep",
+      "conditions": { "all": [{ "fact": "helperHasInterpreter", "operator": "equal", "value": "Y" }] },
+      "event": { "type": "showStep", "params": { "stepIds": ["interpreter-information"] } }
+    },
+    {
+      "name": "revealYourOtherNameFields",
+      "conditions": { "all": [{ "fact": "hasUsedOtherNames", "operator": "equal", "value": "Y" }] },
+      "event": { "type": "showField", "params": { "fieldNames": ["otherNameFirstName", "otherNameMiddleName", "otherNameLastName"] } }
+    },
+    {
+      "name": "showYourUsCitizenInformationStep",
+      "conditions": { "all": [{ "fact": "immigrationStatus", "operator": "equal", "value": "citizen" }] },
+      "event": { "type": "showStep", "params": { "stepIds": ["your-us-citizen-information"] } }
+    },
+    {
+      "name": "showYourLawfulPermanentResidentInformationStep",
+      "conditions": { "all": [{ "fact": "immigrationStatus", "operator": "equal", "value": "lpr" }] },
+      "event": { "type": "showStep", "params": { "stepIds": ["your-lawful-permanent-resident-information"] } }
+    },
+    {
+      "name": "revealNaturalizationCertificateFields",
+      "conditions": { "all": [{ "fact": "hasNaturalizationCertificate", "operator": "equal", "value": "Y" }] },
+      "event": { "type": "showField", "params": { "fieldNames": ["certificateNumber", "certificateIssuancePlace", "certificateIssuanceDate"] } }
+    },
+    {
+      "name": "showCurrentSpouseStep",
+      "conditions": { "all": [{ "fact": "maritalStatus", "operator": "equal", "value": "married" }] },
+      "event": { "type": "showStep", "params": { "stepIds": ["current-spouse"] } }
+    },
+    {
+      "name": "showPriorMarriagesStep",
+      "conditions": { "all": [{ "fact": "maritalStatus", "operator": "notEqual", "value": "single" }] },
+      "event": { "type": "showStep", "params": { "stepIds": ["prior-marriages"] } }
+    },
+    {
+      "name": "showAddressesLivedTogetherStep",
+      "conditions": { "all": [{ "fact": "filingPetitionFor", "operator": "equal", "value": "spouse" }] },
+      "event": { "type": "showStep", "params": { "stepIds": ["addresses-lived-together"] } }
+    },
+    {
+      "name": "showImmigrationProceedingsStep",
+      "conditions": { "all": [{ "fact": "beneficiaryHasBeenInImmigrationProceedings", "operator": "equal", "value": "Y" }] },
+      "event": { "type": "showStep", "params": { "stepIds": ["immigration-proceedings"] } }
+    },
+    {
+      "name": "showPriorSpousesStep",
+      "conditions": { "all": [{ "fact": "beneficiaryMaritalStatus", "operator": "notEqual", "value": "single" }] },
+      "event": { "type": "showStep", "params": { "stepIds": ["prior-spouses"] } }
+    },
+    {
+      "name": "revealPriorPetitionDetailFields",
+      "conditions": { "all": [{ "fact": "previouslyFiledPetition", "operator": "equal", "value": "Y" }] },
+      "event": {
+        "type": "showField",
+        "params": {
+          "fieldNames": [
+            "priorPetitionBeneficiaryFirstName",
+            "priorPetitionBeneficiaryMiddleName",
+            "priorPetitionBeneficiaryLastName",
+            "priorPetitionCity",
+            "priorPetitionState",
+            "priorPetitionDate",
+            "priorPetitionResult"
+          ]
+        }
+      }
+    },
+    {
+      "name": "citizenshipEvidence",
+      "conditions": { "all": [{ "fact": "immigrationStatus", "operator": "equal", "value": "citizen" }] },
+      "event": {
+        "type": "requireEvidence",
+        "params": {
+          "evidenceItems": ["proofOfCitizenship"],
+          "message": "Because you indicated you are a U.S. citizen, proof of citizenship is required."
+        }
+      }
+    },
+    {
+      "name": "lprStatusEvidence",
+      "conditions": { "all": [{ "fact": "immigrationStatus", "operator": "equal", "value": "lpr" }] },
+      "event": {
+        "type": "requireEvidence",
+        "params": {
+          "evidenceItems": ["proofOfLprStatus"],
+          "message": "Because you indicated you are a lawful permanent resident, proof of LPR status is required."
+        }
+      }
+    },
+    {
+      "name": "spousePetitionEvidence",
+      "conditions": { "all": [{ "fact": "filingPetitionFor", "operator": "equal", "value": "spouse" }] },
+      "event": {
+        "type": "requireEvidence",
+        "params": {
+          "evidenceItems": ["proofOfMarriage", "photoOfSpouse", "additionalProofOfMarriage", "formI130A"],
+          "message": "Because you are petitioning for your spouse, proof of marriage, a photo of your spouse, additional proof of marriage, and Form I-130A are required."
+        }
+      }
+    },
+    {
+      "name": "yourPriorMarriageEvidence",
+      "conditions": { "all": [{ "fact": "maritalStatus", "operator": "notEqual", "value": "single" }] },
+      "event": {
+        "type": "requireEvidence",
+        "params": {
+          "evidenceItems": ["evidenceEndOfYourPriorMarriage"],
+          "message": "Because you indicated a prior marriage, evidence that it ended is required."
+        }
+      }
+    },
+    {
+      "name": "beneficiaryPriorMarriageEvidence",
+      "conditions": { "all": [{ "fact": "beneficiaryMaritalStatus", "operator": "notEqual", "value": "single" }] },
+      "event": {
+        "type": "requireEvidence",
+        "params": {
+          "evidenceItems": ["evidenceEndOfSpousesPriorMarriage"],
+          "message": "Because you indicated your beneficiary had a prior marriage, evidence that it ended is required."
+        }
+      }
+    }
+  ]
+}

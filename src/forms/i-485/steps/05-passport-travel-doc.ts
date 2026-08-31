@@ -1,5 +1,5 @@
 import type { StepSchema } from '../../../engine/schema/types';
-import { US_STATE_OPTIONS } from './usStates';
+import { US_STATE_OPTIONS } from '../../common/usStates';
 
 export const passportTravelDocStep: StepSchema = {
   id: 'passport-travel-doc',

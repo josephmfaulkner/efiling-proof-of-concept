@@ -9,6 +9,7 @@ import { buildStepZodSchema } from '../../engine/schema/buildZodSchema';
 import { evaluateRules, useRuleEvaluation } from '../../engine/rules/rulesEngine';
 import { SchemaField } from '../../components/fields/SchemaField';
 import { InfoCallout } from '../../components/layout/InfoCallout';
+import { StepContent } from '../../components/layout/StepContent';
 import { WizardNav } from './WizardNav';
 
 interface WizardStepViewProps {
@@ -73,6 +74,7 @@ export function WizardStepView({ step, manifest, rules, context, isFirstStep, on
           {step.title}
         </Typography>
         {step.description && <InfoCallout>{step.description}</InfoCallout>}
+        {step.content && <StepContent blocks={step.content} />}
 
         {step.fields.map((field) => (
           <SchemaField

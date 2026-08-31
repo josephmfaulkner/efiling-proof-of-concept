@@ -52,11 +52,25 @@ export interface FieldSchema {
   visibleWhen?: RuleRef;
 }
 
+/**
+ * Read-only informational content, rendered above any fields by the generic
+ * <StepContent> component. Every real USCIS guided-filing form opens with a
+ * "Before You Start" / "Filling Out Your Form Online" pair of pure-content
+ * steps (fields: []) — this is what makes those reusable across any form
+ * without engine changes, only content data per form.
+ */
+export type ContentBlock =
+  | { type: 'heading'; level?: 2 | 3 | 4; text: string }
+  | { type: 'paragraph'; text: string }
+  | { type: 'list'; items: string[] };
+
 export interface StepSchema {
   /** Also the XState state id and the wizard's :stepId route param. */
   id: string;
   title: string;
   description?: string;
+  /** Read-only body content shown before any fields. A step with content and no fields is a pure informational page (no validation, just a Continue button). */
+  content?: ContentBlock[];
   fields: FieldSchema[];
   visibleWhen?: RuleRef;
   /** Purely presentational grouping label for the sidebar nav (e.g. "About You"). Steps sharing a section render as one expandable group, myUSCIS-style. */
