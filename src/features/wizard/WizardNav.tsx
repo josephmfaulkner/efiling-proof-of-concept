@@ -1,5 +1,4 @@
 import { Box, Button, Divider } from '@mui/material';
-import { useFormContext } from 'react-hook-form';
 
 interface WizardNavProps {
   isFirstStep: boolean;
@@ -7,10 +6,6 @@ interface WizardNavProps {
 }
 
 export function WizardNav({ isFirstStep, onBack }: WizardNavProps) {
-  const {
-    formState: { isSubmitting },
-  } = useFormContext();
-
   return (
     <>
       <Divider sx={{ mt: 4, mb: 3 }} />
@@ -18,7 +13,7 @@ export function WizardNav({ isFirstStep, onBack }: WizardNavProps) {
         <Button type="button" variant="outlined" onClick={onBack}>
           {isFirstStep ? 'Save & exit to dashboard' : 'Back'}
         </Button>
-        <Button type="submit" variant="contained" disabled={isSubmitting}>
+        <Button type="submit" variant="contained">
           Next
         </Button>
       </Box>

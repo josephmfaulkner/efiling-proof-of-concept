@@ -8,6 +8,8 @@ import { uswds } from '../../theme';
 interface SidebarNavProps {
   steps: StepSchema[];
   currentStepId: string;
+  /** From the wizard's live context.visibleSteps — every step without a visibleWhen is always in here. */
+  visibleSteps: Set<string>;
   onNavigate: (stepId: string) => void;
 }
 
@@ -33,9 +35,8 @@ function groupBySection(steps: StepSchema[]): SectionGroup[] {
  * when expanded, and *no* background highlight anywhere — current step is
  * distinguished by bold text and color alone, same as real leaf nav links.
  */
-export function SidebarNav({ steps, currentStepId, onNavigate }: SidebarNavProps) {
+export function SidebarNav({ steps, currentStepId, visibleSteps, onNavigate }: SidebarNavProps) {
   const groups = groupBySection(steps);
-  const currentIndex = steps.findIndex((s) => s.id === currentStepId);
   const currentSection = groups.find((g) => g.steps.some((s) => s.id === currentStepId))?.section;
   const [expanded, setExpanded] = useState<string | null>(currentSection ?? null);
 
@@ -75,9 +76,8 @@ export function SidebarNav({ steps, currentStepId, onNavigate }: SidebarNavProps
               <Collapse in={isExpanded} timeout="auto">
                 <List dense disablePadding>
                   {group.steps.map((step) => {
-                    const stepIndex = steps.findIndex((s) => s.id === step.id);
                     const isCurrent = step.id === currentStepId;
-                    const isReachable = stepIndex <= currentIndex;
+                    const isReachable = visibleSteps.has(step.id);
                     return (
                       <ListItemButton key={step.id} disabled={!isReachable} onClick={() => onNavigate(step.id)} sx={{ py: 0.5, pl: 3 }}>
                         <ListItemText
@@ -102,7 +102,7 @@ export function SidebarNav({ steps, currentStepId, onNavigate }: SidebarNavProps
         })}
       </List>
       <Typography variant="caption" sx={{ display: 'block', color: uswds.base, mt: 2, px: 2 }}>
-        You can return to any step you&apos;ve already completed.
+        You can navigate to any available section, in any order. Fill in every required field before generating your PDF.
       </Typography>
     </Box>
   );

@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useActorRef, useSelector } from '@xstate/react';
 import { Box, Paper, Typography } from '@mui/material';
@@ -56,6 +56,12 @@ function WizardPageInner({ applicationId, stepIdFromUrl, formId }: WizardPageInn
   }, [currentStepId, stepIdFromUrl, applicationId, navigate, actorRef]);
 
   const step = manifest.steps.find((s) => s.id === currentStepId);
+
+  // The sidebar lives outside WizardStepView's <form> (a render sibling, not a descendant),
+  // but a jump still needs to commit that form's in-progress values first — this ref is how
+  // WizardStepView hands WizardPage a fresh "commit and go there" closure every render.
+  const navigateRef = useRef<(stepId: string) => void>(() => {});
+
   if (!step) return null; // mid-navigation to /evidence, or a not-yet-rendered redirect above
 
   return (
@@ -75,7 +81,8 @@ function WizardPageInner({ applicationId, stepIdFromUrl, formId }: WizardPageInn
           <SidebarNav
             steps={manifest.steps}
             currentStepId={currentStepId}
-            onNavigate={(stepId) => actorRef.send({ type: 'GOTO', stepId })}
+            visibleSteps={snapshot.context.visibleSteps}
+            onNavigate={(stepId) => navigateRef.current(stepId)}
           />
         </Box>
 
@@ -94,6 +101,9 @@ function WizardPageInner({ applicationId, stepIdFromUrl, formId }: WizardPageInn
             isFirstStep={currentStepId === firstStepId}
             onBackToDashboard={() => navigate('/dashboard')}
             send={(event) => actorRef.send(event)}
+            registerNavigate={(fn) => {
+              navigateRef.current = fn;
+            }}
           />
         </Box>
       </Box>

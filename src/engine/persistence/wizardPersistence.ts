@@ -59,11 +59,11 @@ export function extractContext(snapshot: unknown): WizardContext | undefined {
 
 /**
  * Review's "Edit" links need to move a *completed* wizard back to an earlier
- * step, but no actor is mounted outside the wizard route to `.send()` a GOTO
- * to. Rather than keep one alive across routes, this rewrites the persisted
- * snapshot's `value` directly — XState resumes an actor from whatever
- * `value`/`context` a snapshot holds, so this is equivalent to having sent
- * GOTO before the page was ever left.
+ * step, but no actor is mounted outside the wizard route to `.send()` a
+ * NAVIGATE to. Rather than keep one alive across routes, this rewrites the
+ * persisted snapshot's `value` directly — XState resumes an actor from
+ * whatever `value`/`context` a snapshot holds, so this is equivalent to
+ * having navigated there before the page was ever left.
  */
 export function jumpToStep(applicationId: string, stepId: string) {
   const raw = loadSnapshot(applicationId);
