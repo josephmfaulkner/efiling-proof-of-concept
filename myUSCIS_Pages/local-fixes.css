@@ -1,0 +1,643 @@
+/* ============================================================================
+   local-fixes.css  —  offline rendering fixes for the saved myUSCIS I-130 pages
+   ----------------------------------------------------------------------------
+   These pages are "Save Page As" snapshots of a React single-page app that
+   styles its components with MUI + Emotion + tss-react. Those libraries inject
+   their CSS into <style data-emotion> tags at runtime via CSSOM insertRule(),
+   which the browser does NOT serialize when the page is saved. The result:
+   every <style data-emotion> tag in the saved HTML is empty, so all MUI/tss
+   component styling (form grid, inputs, labels, the sidebar accordion, icons,
+   radios, dividers …) is missing when the file is opened from disk.
+
+   This stylesheet reconstructs the lost component layer using MUI v5 defaults
+   plus the USWDS / USCIS theme, targeting the stable `Mui*`, `tss-*-<role>`
+   and app class names that ARE preserved in the saved markup. It is injected
+   as the last stylesheet in <head> so it wins source-order ties over the
+   app's own static CSS. The React bundle chunks are also neutralised (see the
+   fix script) so they can't wipe the captured markup on load.
+   ========================================================================== */
+
+/* ---------------------------------------------------------------------------
+   0. Fonts
+   The app's web fonts load from absolute /forms/assets/*.ttf URLs that don't
+   resolve when the file is opened from disk, and dozens of preserved rules
+   set `font-family: SourceSansProRegular` with no usable fallback, so the
+   browser drops to its default serif. Re-point every app-specific family
+   name at a locally installed sans-serif so all those rules just work.
+   (Liberation Sans / Arimo are metric-compatible with Arial; the rest are
+   broad fallbacks for other machines.)
+   --------------------------------------------------------------------------- */
+@font-face { font-family: "SourceSansProRegular";  src: local("Liberation Sans"), local("Arimo"), local("Arial"), local("Helvetica Neue"), local("Roboto"), local("Segoe UI"), local("DejaVu Sans"); }
+@font-face { font-family: "SourceSansProLight";    src: local("Liberation Sans"), local("Arimo"), local("Arial"), local("Helvetica Neue"), local("Roboto"), local("Segoe UI"), local("DejaVu Sans"); }
+@font-face { font-family: "SourceSansProSemibold"; src: local("Liberation Sans Bold"), local("Arimo Bold"), local("Arial Bold"), local("Helvetica Neue Bold"), local("DejaVu Sans Bold"); font-weight: 400 700; }
+@font-face { font-family: "SourceSansProSemiBold"; src: local("Liberation Sans Bold"), local("Arimo Bold"), local("Arial Bold"), local("Helvetica Neue Bold"), local("DejaVu Sans Bold"); font-weight: 400 700; }
+@font-face { font-family: "Source Sans Pro Web";   src: local("Liberation Sans"), local("Arimo"), local("Arial"), local("Helvetica Neue"), local("Roboto"), local("Segoe UI"), local("DejaVu Sans"); }
+@font-face { font-family: "Source Sans Pro";       src: local("Liberation Sans"), local("Arimo"), local("Arial"), local("Helvetica Neue"), local("Roboto"), local("Segoe UI"), local("DejaVu Sans"); }
+@font-face { font-family: "Source Sans 3";         src: local("Liberation Sans"), local("Arimo"), local("Arial"), local("Helvetica Neue"), local("Roboto"), local("Segoe UI"), local("DejaVu Sans"); }
+@font-face { font-family: "ProximaNovaRegular";    src: local("Liberation Sans"), local("Arimo"), local("Arial"), local("Helvetica Neue"), local("Roboto"), local("Segoe UI"), local("DejaVu Sans"); }
+@font-face { font-family: "ProximaNovaLight";      src: local("Liberation Sans"), local("Arimo"), local("Arial"), local("Helvetica Neue"), local("Roboto"), local("Segoe UI"), local("DejaVu Sans"); }
+@font-face { font-family: "ProximaNovaSemibold";   src: local("Liberation Sans Bold"), local("Arimo Bold"), local("Arial Bold"), local("Helvetica Neue Bold"), local("DejaVu Sans Bold"); font-weight: 400 700; }
+@font-face { font-family: "Merriweather Web";      src: local("Liberation Sans"), local("Arimo"), local("Arial"), local("Helvetica Neue"), local("Roboto"), local("Segoe UI"), local("DejaVu Sans"); }
+
+/* Reassert a sane sans-serif for the app content region as a second layer of
+   defence (header/footer outside #root already render correctly). */
+#root,
+#root h1, #root h2, #root h3, #root h4, #root h5, #root h6,
+#root p, #root li, #root dt, #root dd, #root a, #root label,
+#root strong, #root b, #root em, #root small, #root blockquote,
+#root table, #root th, #root td, #root caption,
+#root input, #root select, #root textarea, #root button,
+#root .MuiTypography-root,
+#root .usa-prose, #root .usa-prose * {
+  font-family: "Source Sans Pro Web", "Source Sans 3", "Source Sans Pro",
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
+    Arial, sans-serif;
+}
+
+:root {
+  --uscis-ink: #1b1b1b;
+  --uscis-hint: #565c65;
+  --uscis-border: #565c65;
+  --uscis-border-light: #a9aeb1;
+  --uscis-primary: #005ea2;
+  --uscis-primary-dark: #1a4480;
+  --uscis-primary-darker: #162e51;
+  --uscis-required: #b50909;
+  --uscis-divider: #dfe1e2;
+  --uscis-sidebar-bg: #f0f0f0;
+  --uscis-font: "Public Sans", "Public Sans Web", -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* ---------------------------------------------------------------------------
+   1. MUI SvgIcon  — without this, every inline <svg> renders at intrinsic
+   size, producing giant black chevrons/checkmarks all over the page.
+   --------------------------------------------------------------------------- */
+.MuiSvgIcon-root {
+  fill: currentColor;
+  width: 1em;
+  height: 1em;
+  display: inline-block;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+  user-select: none;
+}
+.MuiSvgIcon-fontSizeSmall { font-size: 1.25rem; }
+.MuiSvgIcon-fontSizeMedium { font-size: 1.5rem; }
+.MuiSvgIcon-fontSizeLarge { font-size: 2.1875rem; }
+
+/* FontAwesome inline SVGs used in notices / instruction rows */
+svg.svg-inline--fa {
+  height: 1em;
+  width: 1.25em;
+  vertical-align: -0.125em;
+  overflow: visible;
+  box-sizing: content-box;
+}
+
+/* ---------------------------------------------------------------------------
+   2. MUI Grid  — the form layout engine (12-column flexbox).
+   --------------------------------------------------------------------------- */
+.MuiGrid-root { box-sizing: border-box; }
+.MuiGrid-container {
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+}
+.MuiGrid-item { margin: 0; }
+.MuiGrid-wrap-xs-nowrap { flex-wrap: nowrap; }
+.MuiGrid-direction-xs-column { flex-direction: column; }
+.MuiGrid-direction-xs-row { flex-direction: row; }
+
+/* spacing (gutters) */
+.MuiGrid-spacing-xs-1 { width: calc(100% + 8px); margin: -4px; }
+.MuiGrid-spacing-xs-1 > .MuiGrid-item { padding: 4px; }
+.MuiGrid-spacing-xs-2 { width: calc(100% + 16px); margin: -8px; }
+.MuiGrid-spacing-xs-2 > .MuiGrid-item { padding: 8px; }
+.MuiGrid-spacing-xs-3 { width: calc(100% + 24px); margin: -12px; }
+.MuiGrid-spacing-xs-3 > .MuiGrid-item { padding: 12px; }
+
+/* column widths — base (xs) */
+.MuiGrid-grid-xs-true { flex: 1 1 0; max-width: 100%; }
+.MuiGrid-grid-xs-auto { flex: 0 0 auto; max-width: none; width: auto; }
+.MuiGrid-grid-xs-1  { flex-basis: 8.333333%;  max-width: 8.333333%; }
+.MuiGrid-grid-xs-2  { flex-basis: 16.666667%; max-width: 16.666667%; }
+.MuiGrid-grid-xs-3  { flex-basis: 25%;        max-width: 25%; }
+.MuiGrid-grid-xs-4  { flex-basis: 33.333333%; max-width: 33.333333%; }
+.MuiGrid-grid-xs-5  { flex-basis: 41.666667%; max-width: 41.666667%; }
+.MuiGrid-grid-xs-6  { flex-basis: 50%;        max-width: 50%; }
+.MuiGrid-grid-xs-7  { flex-basis: 58.333333%; max-width: 58.333333%; }
+.MuiGrid-grid-xs-8  { flex-basis: 66.666667%; max-width: 66.666667%; }
+.MuiGrid-grid-xs-9  { flex-basis: 75%;        max-width: 75%; }
+.MuiGrid-grid-xs-10 { flex-basis: 83.333333%; max-width: 83.333333%; }
+.MuiGrid-grid-xs-11 { flex-basis: 91.666667%; max-width: 91.666667%; }
+.MuiGrid-grid-xs-12 { flex-basis: 100%;       max-width: 100%; }
+
+@media (min-width: 600px) {
+  .MuiGrid-grid-sm-true { flex: 1 1 0; max-width: 100%; }
+  .MuiGrid-grid-sm-auto { flex: 0 0 auto; max-width: none; width: auto; }
+  .MuiGrid-grid-sm-1  { flex-basis: 8.333333%;  max-width: 8.333333%; }
+  .MuiGrid-grid-sm-2  { flex-basis: 16.666667%; max-width: 16.666667%; }
+  .MuiGrid-grid-sm-3  { flex-basis: 25%;        max-width: 25%; }
+  .MuiGrid-grid-sm-4  { flex-basis: 33.333333%; max-width: 33.333333%; }
+  .MuiGrid-grid-sm-5  { flex-basis: 41.666667%; max-width: 41.666667%; }
+  .MuiGrid-grid-sm-6  { flex-basis: 50%;        max-width: 50%; }
+  .MuiGrid-grid-sm-7  { flex-basis: 58.333333%; max-width: 58.333333%; }
+  .MuiGrid-grid-sm-8  { flex-basis: 66.666667%; max-width: 66.666667%; }
+  .MuiGrid-grid-sm-9  { flex-basis: 75%;        max-width: 75%; }
+  .MuiGrid-grid-sm-10 { flex-basis: 83.333333%; max-width: 83.333333%; }
+  .MuiGrid-grid-sm-11 { flex-basis: 91.666667%; max-width: 91.666667%; }
+  .MuiGrid-grid-sm-12 { flex-basis: 100%;       max-width: 100%; }
+}
+@media (min-width: 900px) {
+  .MuiGrid-grid-md-true { flex: 1 1 0; max-width: 100%; }
+  .MuiGrid-grid-md-6  { flex-basis: 50%; max-width: 50%; }
+  .MuiGrid-grid-md-12 { flex-basis: 100%; max-width: 100%; }
+}
+
+/* ---------------------------------------------------------------------------
+   3. Typography
+   --------------------------------------------------------------------------- */
+.MuiTypography-root { margin: 0; font-family: var(--uscis-font); }
+.MuiTypography-body1 { font-size: 1rem; line-height: 1.5; letter-spacing: normal; }
+.MuiTypography-gutterBottom { margin-bottom: 0.35em; }
+
+/* Question headings + instructions injected by tss-react */
+h3[class*="tss-"][class*="-question"],
+h4[class*="tss-"][class*="-question"],
+[class*="tss-"][class*="-question"] {
+  font-family: var(--uscis-font);
+  font-size: 1.5rem;
+  line-height: 1.3;
+  font-weight: 700;
+  color: var(--uscis-ink);
+  margin: 2rem 0 1rem;
+}
+[class*="tss-"][class*="-instructions"] {
+  display: block;
+  margin: 0 0 1rem;
+  color: var(--uscis-ink);
+  font-size: 1rem;
+  line-height: 1.5;
+}
+[class*="tss-"][class*="-instructions"] p { margin: 0 0 0.5rem; }
+
+/* ---------------------------------------------------------------------------
+   4. MUI Divider  — the faint rules between questions
+   --------------------------------------------------------------------------- */
+hr.MuiDivider-root,
+.MuiDivider-root {
+  margin: 1.5rem 0;
+  border: 0;
+  border-bottom: 1px solid var(--uscis-divider);
+  height: 0;
+  width: 100%;
+}
+
+/* ---------------------------------------------------------------------------
+   5. MUI form controls: FormControl / TextField / InputBase / Input
+   --------------------------------------------------------------------------- */
+.MuiFormControl-root {
+  display: inline-flex;
+  flex-direction: column;
+  position: relative;
+  min-width: 0;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  vertical-align: top;
+}
+.MuiFormControl-fullWidth { width: 100%; }
+
+.MuiInputBase-root {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 2.5rem;
+  padding: 0 0.5rem;
+  font-family: var(--uscis-font);
+  font-size: 1.06rem;
+  line-height: 1.5;
+  color: var(--uscis-ink);
+  background-color: #fff;
+  border: 1px solid var(--uscis-border);
+  border-radius: 0;
+}
+.MuiInputBase-fullWidth { width: 100%; }
+.MuiInputBase-root.Mui-error { border-color: var(--uscis-required); }
+.MuiInputBase-root.Mui-disabled { background-color: #f0f0f0; color: var(--uscis-hint); }
+
+/* kill MUI's underline pseudo-elements — we draw a full border instead */
+.MuiInput-root::before,
+.MuiInput-root::after,
+.MuiInput-underline::before,
+.MuiInput-underline::after { display: none !important; content: none !important; }
+
+.MuiInputBase-input,
+.MuiInput-input,
+.MuiInputBase-root input {
+  font: inherit;
+  color: currentColor;
+  width: 100%;
+  min-width: 0;
+  height: 1.5em;
+  margin: 0;
+  padding: 0.45rem 0.25rem;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  box-shadow: none;
+  box-sizing: content-box;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.MuiInputBase-inputMultiline,
+textarea.MuiInputBase-input { height: auto; resize: vertical; }
+
+/* input adornments (e.g. the "+" before the phone country code) */
+.MuiInputAdornment-root {
+  display: inline-flex;
+  align-items: center;
+  height: 0.01em;
+  max-height: 2em;
+  white-space: nowrap;
+  color: var(--uscis-hint);
+}
+.MuiInputAdornment-positionStart { margin-right: 0.5rem; }
+.MuiInputAdornment-positionEnd { margin-left: 0.5rem; }
+
+/* ---------------------------------------------------------------------------
+   6. Labels + helper text
+   --------------------------------------------------------------------------- */
+.MuiFormLabel-root,
+.MuiInputLabel-root {
+  position: static !important;
+  display: block;
+  transform: none !important;
+  transform-origin: top left;
+  max-width: 100%;
+  margin: 0 0 0.25rem;
+  padding: 0;
+  font-family: var(--uscis-font);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--uscis-ink);
+  white-space: normal;
+  pointer-events: auto;
+}
+.MuiInputLabel-root.MuiInputLabel-standard,
+.MuiInputLabel-formControl { top: auto; left: auto; }
+
+.MuiFormLabel-asterisk,
+.MuiInputLabel-asterisk,
+.MuiFormLabel-root .MuiFormLabel-asterisk,
+.required-fields {
+  color: var(--uscis-required);
+}
+
+/* visually-hidden labels must stay hidden */
+.sr-only,
+.MuiInputLabel-root.sr-only,
+.visually-hidden {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.MuiFormHelperText-root {
+  margin: 0.25rem 0 0;
+  font-family: var(--uscis-font);
+  font-size: 0.9rem;
+  line-height: 1.4;
+  color: var(--uscis-hint);
+  text-align: left;
+}
+.MuiFormHelperText-root.Mui-error { color: var(--uscis-required); }
+.MuiFormHelperText-root p { margin: 0; }
+
+/* ---------------------------------------------------------------------------
+   7. MUI Autocomplete (country / state pickers rendered as text inputs)
+   --------------------------------------------------------------------------- */
+.MuiAutocomplete-root { position: relative; }
+.MuiAutocomplete-root .MuiInputBase-root { padding-right: 2.5rem; flex-wrap: wrap; }
+.MuiAutocomplete-input {
+  flex-grow: 1;
+  min-width: 30px;
+  width: 0;
+}
+.MuiAutocomplete-endAdornment {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+}
+.MuiAutocomplete-popupIndicator,
+.MuiAutocomplete-clearIndicator {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  color: var(--uscis-hint);
+}
+.MuiAutocomplete-popupIndicator .MuiSvgIcon-root { font-size: 1.25rem; }
+
+/* ---------------------------------------------------------------------------
+   8. Buttons (MUI ButtonBase / IconButton) + ripple neutralisation
+   --------------------------------------------------------------------------- */
+.MuiButtonBase-root {
+  box-sizing: border-box;
+  font-family: var(--uscis-font);
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.MuiIconButton-root {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  background: transparent;
+  border: 0;
+  border-radius: 50%;
+  color: inherit;
+}
+.MuiTouchRipple-root {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  border-radius: inherit;
+  z-index: 0;
+}
+
+/* ---------------------------------------------------------------------------
+   9. Radios / Checkboxes / FormControlLabel
+   --------------------------------------------------------------------------- */
+.MuiFormGroup-root { display: flex; flex-direction: column; flex-wrap: wrap; }
+
+.MuiFormControlLabel-root {
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  margin-left: -0.6875rem;
+  margin-right: 1rem;
+  vertical-align: middle;
+}
+.MuiFormControlLabel-label {
+  font-family: var(--uscis-font);
+  font-size: 1.06rem;
+  line-height: 1.5;
+  color: var(--uscis-ink);
+}
+
+.MuiRadio-root,
+.MuiCheckbox-root {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5625rem;
+  color: var(--uscis-border);
+  background: transparent;
+  border: 0;
+}
+.MuiRadio-root.Mui-checked,
+.MuiCheckbox-root.Mui-checked { color: var(--uscis-primary); }
+
+/* the real <input> sits invisibly on top of the icon stack */
+.PrivateSwitchBase-input,
+.MuiRadio-root input,
+.MuiCheckbox-root input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 1;
+}
+
+/* The saved markup already contains the correct icon for each control's
+   state (checked controls carry the filled icon, unchecked the outline),
+   so just render whatever icon is there at the right size, in flow. */
+.MuiRadio-root .MuiSvgIcon-root,
+.MuiCheckbox-root .MuiSvgIcon-root {
+  position: static;
+  transform: none;
+  font-size: 1.5rem;
+}
+
+/* …but an UNCHECKED control is often server-rendered with an empty icon
+   slot (React would have injected the SVG at runtime). Draw the control
+   with CSS whenever no icon SVG is present. */
+.MuiRadio-root:not(:has(svg))::before,
+.MuiCheckbox-root:not(:has(svg))::before {
+  content: "";
+  box-sizing: border-box;
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 2px solid var(--uscis-border);
+  background: #fff;
+}
+.MuiRadio-root:not(:has(svg))::before { border-radius: 50%; }
+.MuiCheckbox-root:not(:has(svg))::before { border-radius: 2px; }
+
+.MuiRadio-root.Mui-checked:not(:has(svg))::before {
+  border-color: var(--uscis-primary);
+  background:
+    radial-gradient(circle, var(--uscis-primary) 0 45%, #fff 47%);
+}
+.MuiCheckbox-root.Mui-checked:not(:has(svg))::before {
+  border-color: var(--uscis-primary);
+  background: var(--uscis-primary);
+}
+.MuiCheckbox-root.Mui-checked:not(:has(svg))::after {
+  content: "";
+  position: absolute;
+  left: 0.9rem;
+  top: 0.62rem;
+  width: 0.32rem;
+  height: 0.62rem;
+  border: solid #fff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+/* tss-react radio helper text under an option */
+.radio-helper-text { font-size: 0.9rem; color: var(--uscis-hint); margin-top: 0.35rem; }
+
+/* ---------------------------------------------------------------------------
+   10. Sidebar navigation  (MUI Accordion + Collapse)
+   --------------------------------------------------------------------------- */
+.MuiPaper-root {
+  color: var(--uscis-ink);
+  background-color: transparent;
+}
+.MuiAccordion-root {
+  position: relative;
+  background-color: transparent;
+  box-shadow: none;
+  border: 0;
+  margin: 0;
+}
+.MuiAccordion-root::before { display: none; }
+
+.MuiAccordionSummary-root {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 3rem;
+  padding: 0.75rem 1rem;
+  background: transparent;
+  border: 0;
+  text-align: left;
+  cursor: pointer;
+  color: var(--uscis-primary-dark);
+  font-weight: 700;
+}
+.MuiAccordionSummary-content {
+  display: block;
+  flex: 1 1 auto;
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.35;
+}
+.MuiAccordionSummary-root.Mui-expanded {
+  color: var(--uscis-primary-darker);
+  box-shadow: inset 4px 0 0 var(--uscis-primary-darker);
+}
+.MuiAccordionSummary-expandIconWrapper {
+  display: inline-flex;
+  align-items: center;
+  color: var(--uscis-primary-dark);
+  transform: rotate(0deg);
+  transition: transform 0.15s ease;
+}
+.MuiAccordionSummary-expandIconWrapper.Mui-expanded { transform: rotate(180deg); }
+.MuiAccordionSummary-expandIconWrapper .MuiSvgIcon-root { font-size: 1.35rem; }
+
+.MuiAccordionDetails-root { padding: 0 1rem 0.75rem; }
+
+/* Collapse: hide collapsed sidebar sections, show expanded ones */
+.MuiCollapse-root { overflow: hidden; transition: none; }
+.MuiCollapse-hidden { height: 0 !important; visibility: hidden; }
+.MuiCollapse-entered { height: auto !important; overflow: visible; visibility: visible; }
+.MuiCollapse-wrapper { display: flex; width: 100%; }
+.MuiCollapse-wrapperInner { width: 100%; }
+
+/* nav leaf links */
+.vertical-nav-no-subroutes-container,
+.vertical-nav-with-subroutes-container { margin: 0.15rem 0; }
+.vertical-nav-no-subroutes-container .MuiTypography-root { margin: 0; }
+.vertical-nav-no-subroutes-container a,
+.vertical-nav-tertiary-item a {
+  display: block;
+  padding: 0.35rem 0;
+  color: var(--uscis-primary-dark);
+  text-decoration: none;
+  line-height: 1.35;
+}
+.vertical-nav-no-subroutes-container a:hover { text-decoration: underline; }
+.vertical-nav-no-subroutes-container a.active,
+.vertical-nav-tertiary-item a.active {
+  font-weight: 700;
+  color: var(--uscis-primary-darker);
+}
+.vertical-nav-tertiary-container { margin-left: 0.75rem; }
+
+/* the sidebar panel itself (mostly styled by the app CSS, this is a fallback) */
+.form-menu-vertical {
+  background-color: var(--uscis-sidebar-bg);
+}
+.form-title-vertical h1,
+.form-title-vertical .MuiTypography-root {
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--uscis-ink);
+  margin: 0;
+}
+
+/* ---------------------------------------------------------------------------
+   11. "Before you begin" / important-information notice card
+        (wrapper carries only hashed emotion classes, so match structurally:
+         a block that directly contains a FontAwesome circle-info icon)
+   --------------------------------------------------------------------------- */
+.MuiGrid-container:has(> .MuiGrid-item > div > div > svg.fa-circle-info),
+div:has(> div > svg.fa-circle-info) > .MuiGrid-container,
+.with-margin-bottom-lg > .MuiGrid-container:has(svg.fa-circle-info) {
+  position: relative;
+  background: #fff;
+  border-left: 0.5rem solid var(--uscis-primary-darker);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+  align-items: flex-start;
+}
+svg.fa-circle-info,
+svg.fa-circle-exclamation,
+svg.fa-circle-question {
+  color: var(--uscis-primary-darker);
+  font-size: 1.4rem;
+  margin-right: 0.5rem;
+}
+
+/* FontAwesome v4 *glyph* icons (<i class="fa fa-mobile">, the .bullet pucks
+   on the intro/timeline pages) pull from an absolute font URL that fails
+   offline, leaving hollow grey circles. Drop the decorative puck so the
+   layout reads cleanly; real content icons on the form pages are inline
+   SVG and are unaffected. */
+.timeline-icon .bullet,
+.timeline-icon,
+.section-icon {
+  background: transparent !important;
+  box-shadow: none !important;
+  border-color: transparent !important;
+}
+#root i.fa:not(.svg-inline--fa),
+#root span.fa:not(.svg-inline--fa) { display: none; }
+[class*="tss-"][class*="-icon"] { color: var(--uscis-primary-darker); }
+[class*="tss-"][class*="-errorIcon"] { color: var(--uscis-required); }
+
+/* ---------------------------------------------------------------------------
+   12. Layout guards
+   --------------------------------------------------------------------------- */
+#root .center-layout-vertical.for-form-vertical {
+  max-width: 40rem;
+  padding: 1.5rem 1rem 3rem;
+}
+#maincontent:empty { display: none; }
+.with-margin-bottom-lg { margin-bottom: 1.5rem; }
+.with-margin-right-md { margin-right: 1rem; }
+.with-padding-top-lg { padding-top: 1.5rem; }
+
+/* keep collapsed USWDS modals hidden (belt & suspenders) */
+.usa-modal-wrapper.is-hidden { display: none !important; }
+.usa-modal-wrapper:not(.is-visible) { display: none !important; }
+
+/* ---------------------------------------------------------------------------
+   13. Third-party overlays captured in the snapshot that shouldn't show
+        offline: the Qualtrics site-intercept "Feedback" slider (absolutely
+        positioned with 2-billion z-index) and its placeholder container.
+   --------------------------------------------------------------------------- */
+[class*="QSISlider"],
+[class^="QSI"],
+[id^="QSI"],
+#ZN_37xWsbwLQWWzZFr,
+div[style*="z-index: 20000000"],
+div[style*="z-index:20000000"] {
+  display: none !important;
+}
