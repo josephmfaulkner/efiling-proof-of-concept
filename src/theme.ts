@@ -1,18 +1,22 @@
 import { createTheme } from '@mui/material/styles';
 
 /**
- * A close approximation of the U.S. Web Design System's default token set,
- * expressed as an MUI theme. USWDS is a public, open design system meant for
- * exactly this kind of reuse (unlike an agency's actual seal/logo, which this
- * app deliberately does not reproduce — see Masthead.tsx).
+ * Real design tokens extracted directly from the actual myUSCIS I-130 guided
+ * e-filing app (saved page captures + embedded component sourcemaps — see
+ * README). Not an approximation of USWDS defaults: these are the app's own
+ * `--uscis-*` custom properties and literal colors, e.g. the required-field
+ * red (#cc3333, confirmed via the app's own RequiredFieldsCopy.scss) and the
+ * header/banner navy (#003366, confirmed via its real static CSS).
  */
 export const uswds = {
   primary: '#005ea2',
   primaryDark: '#1a4480',
   primaryDarker: '#162e51',
   primaryLighter: '#e6f1f8',
+  headerNavy: '#003366',
+  linkBlue: '#006699',
   focus: '#2491ff',
-  error: '#b50909',
+  error: '#cc3333',
   errorLighter: '#f4e3e3',
   success: '#00a91c',
   successLighter: '#ecf3ec',
@@ -23,6 +27,7 @@ export const uswds = {
   baseLight: '#a9aeb1',
   baseLighter: '#dfe1e2',
   baseLightest: '#f0f0f0',
+  bannerBg: '#f9f9f9',
   white: '#ffffff',
 };
 
@@ -35,7 +40,7 @@ export const theme = createTheme({
     background: { default: uswds.baseLightest, paper: uswds.white },
     divider: uswds.baseLighter,
   },
-  shape: { borderRadius: 3 },
+  shape: { borderRadius: 0 },
   typography: {
     fontFamily: '"Public Sans", "Helvetica Neue", Arial, sans-serif',
     h1: { fontSize: '2rem', fontWeight: 700, color: uswds.inkDarkest },
@@ -62,7 +67,7 @@ export const theme = createTheme({
       styleOverrides: {
         // Contained-primary already uses palette.primary.main/dark for its rest/hover
         // states by default, so no explicit color override is needed here.
-        root: { borderRadius: 3, padding: '0.625rem 1.25rem', fontSize: '1.0625rem' },
+        root: { borderRadius: 0, padding: '0.625rem 1.25rem', fontSize: '1.0625rem' },
         outlined: {
           borderWidth: 2,
           '&:hover': { borderWidth: 2, backgroundColor: uswds.primaryLighter },
@@ -72,16 +77,18 @@ export const theme = createTheme({
     MuiOutlinedInput: {
       styleOverrides: {
         root: {
-          borderRadius: 3,
+          borderRadius: 0,
+          minHeight: '2.5rem',
+          fontSize: '1.06rem',
           backgroundColor: uswds.white,
-          '& fieldset': { borderColor: uswds.inkDarker, borderWidth: 1 },
+          '& fieldset': { borderColor: uswds.ink, borderWidth: 1 },
           '&:hover fieldset': { borderColor: uswds.inkDarkest },
         },
       },
     },
     MuiInputLabel: {
       styleOverrides: {
-        root: { position: 'static', transform: 'none', fontWeight: 600, color: uswds.inkDarkest, marginBottom: 4 },
+        root: { position: 'static', transform: 'none', fontWeight: 700, color: uswds.inkDarkest, marginBottom: 4 },
         shrink: { transform: 'none' },
       },
     },

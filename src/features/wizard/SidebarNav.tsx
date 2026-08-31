@@ -27,6 +27,12 @@ function groupBySection(steps: StepSchema[]): SectionGroup[] {
   return groups;
 }
 
+/**
+ * Matches the real myUSCIS sidebar's actual MUI Accordion styling: bold
+ * section headers colored primary-dark, primary-darker plus a left border
+ * when expanded, and *no* background highlight anywhere — current step is
+ * distinguished by bold text and color alone, same as real leaf nav links.
+ */
 export function SidebarNav({ steps, currentStepId, onNavigate }: SidebarNavProps) {
   const groups = groupBySection(steps);
   const currentIndex = steps.findIndex((s) => s.id === currentStepId);
@@ -40,16 +46,31 @@ export function SidebarNav({ steps, currentStepId, onNavigate }: SidebarNavProps
           const isExpanded = expanded === group.section || group.section === currentSection;
           const groupHasCurrent = group.section === currentSection;
           return (
-            <Box key={group.section} sx={{ mb: 0.5 }}>
+            <Box
+              key={group.section}
+              sx={{ borderLeft: isExpanded ? `4px solid ${uswds.primaryDarker}` : '4px solid transparent' }}
+            >
               <ListItemButton
                 onClick={() => setExpanded(isExpanded && !groupHasCurrent ? null : group.section)}
-                sx={{ py: 0.75 }}
+                sx={{ py: 0.75, px: 1.5 }}
               >
                 <ListItemText
                   primary={group.section}
-                  slotProps={{ primary: { sx: { fontWeight: 700, fontSize: '0.95rem', color: uswds.inkDarkest } } }}
+                  slotProps={{
+                    primary: {
+                      sx: {
+                        fontWeight: 700,
+                        fontSize: '1rem',
+                        color: isExpanded ? uswds.primaryDarker : uswds.primaryDark,
+                      },
+                    },
+                  }}
                 />
-                {isExpanded ? <ExpandLessIcon fontSize="small" /> : <ExpandMoreIcon fontSize="small" />}
+                {isExpanded ? (
+                  <ExpandLessIcon fontSize="small" sx={{ color: uswds.primaryDark }} />
+                ) : (
+                  <ExpandMoreIcon fontSize="small" sx={{ color: uswds.primaryDark }} />
+                )}
               </ListItemButton>
               <Collapse in={isExpanded} timeout="auto">
                 <List dense disablePadding>
@@ -58,25 +79,15 @@ export function SidebarNav({ steps, currentStepId, onNavigate }: SidebarNavProps
                     const isCurrent = step.id === currentStepId;
                     const isReachable = stepIndex <= currentIndex;
                     return (
-                      <ListItemButton
-                        key={step.id}
-                        disabled={!isReachable}
-                        onClick={() => onNavigate(step.id)}
-                        sx={{
-                          py: 0.75,
-                          pl: 3,
-                          borderLeft: isCurrent ? `4px solid ${uswds.primary}` : '4px solid transparent',
-                          bgcolor: isCurrent ? uswds.primaryLighter : 'transparent',
-                        }}
-                      >
+                      <ListItemButton key={step.id} disabled={!isReachable} onClick={() => onNavigate(step.id)} sx={{ py: 0.5, pl: 3 }}>
                         <ListItemText
                           primary={step.title}
                           slotProps={{
                             primary: {
                               sx: {
                                 fontWeight: isCurrent ? 700 : 400,
-                                fontSize: '0.9rem',
-                                color: isReachable ? uswds.inkDarker : uswds.baseLight,
+                                fontSize: '0.95rem',
+                                color: !isReachable ? uswds.baseLight : isCurrent ? uswds.primaryDarker : uswds.primaryDark,
                               },
                             },
                           }}

@@ -1,25 +1,30 @@
 import type { ReactNode } from 'react';
-import { Box, Container, Typography } from '@mui/material';
+import { Box, Container } from '@mui/material';
 import { GovBanner } from '../layout/GovBanner';
 import { Masthead } from '../layout/Masthead';
+import { Footer } from '../layout/Footer';
 import { uswds } from '../../theme';
 
-export function Layout({ children, maxWidth = 'md' }: { children: ReactNode; maxWidth?: 'sm' | 'md' | 'lg' | 'xl' }) {
+interface LayoutProps {
+  children: ReactNode;
+  maxWidth?: 'sm' | 'md' | 'lg' | 'xl';
+  /** The real wizard body spans edge-to-edge (sidebar flush left) rather than sitting in a centered, padded container — pass true to skip the Container wrapper. */
+  fullBleed?: boolean;
+}
+
+export function Layout({ children, maxWidth = 'md', fullBleed = false }: LayoutProps) {
   return (
     <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', bgcolor: uswds.baseLightest }}>
       <GovBanner />
       <Masthead />
-      <Container maxWidth={maxWidth} sx={{ flex: 1, py: 5 }}>
-        {children}
-      </Container>
-      <Box component="footer" sx={{ borderTop: `1px solid ${uswds.baseLighter}`, py: 3 }}>
-        <Container maxWidth="lg">
-          <Typography variant="caption" sx={{ color: uswds.base }}>
-            Not affiliated with USCIS or DHS. Educational proof of concept only — not legal
-            advice, and not a real filing channel.
-          </Typography>
+      {fullBleed ? (
+        <Box sx={{ flex: 1 }}>{children}</Box>
+      ) : (
+        <Container maxWidth={maxWidth} sx={{ flex: 1, py: 5 }}>
+          {children}
         </Container>
-      </Box>
+      )}
+      <Footer />
     </Box>
   );
 }

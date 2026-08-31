@@ -12,6 +12,10 @@ dist
 dist-ssr
 *.local
 
+# Local reference-only captures of the real myUSCIS site (design research, not app code —
+# large, and includes third-party tracking/analytics scripts not meant to ship).
+myUSCIS_Pages/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

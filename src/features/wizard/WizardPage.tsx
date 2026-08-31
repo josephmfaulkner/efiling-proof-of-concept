@@ -59,18 +59,17 @@ function WizardPageInner({ applicationId, stepIdFromUrl, formId }: WizardPageInn
   if (!step) return null; // mid-navigation to /evidence, or a not-yet-rendered redirect above
 
   return (
-    <Layout maxWidth="lg">
-      <Paper variant="outlined" sx={{ display: 'flex', minHeight: 560 }}>
+    <Layout fullBleed>
+      <Box sx={{ display: 'flex', minHeight: '100%', justifyContent: 'center' }}>
         <Box
           sx={{
             width: 280,
             flexShrink: 0,
             bgcolor: uswds.baseLightest,
-            borderRight: `1px solid ${uswds.baseLighter}`,
-            py: 3,
+            py: 3
           }}
         >
-          <Typography variant="overline" sx={{ px: 2, color: uswds.ink, fontWeight: 700 }}>
+          <Typography sx={{ px: 2, mb: 2, pb: 2, fontSize: '1.25rem', fontWeight: 700, color: uswds.inkDarkest, borderBottom: `1px solid ${uswds.baseLighter}` }}>
             {manifest.shortTitle}
           </Typography>
           <SidebarNav
@@ -80,7 +79,7 @@ function WizardPageInner({ applicationId, stepIdFromUrl, formId }: WizardPageInn
           />
         </Box>
 
-        <Box sx={{ flex: 1, p: { xs: 3, sm: 5 } }}>
+        <Box sx={{ flex: 1, p: { xs: 3, sm: 5 }, maxWidth: 720 }}>
           <WizardStepView
             // Forces a fresh mount (fresh useForm()) per step. Without this, revisiting a
             // step within the same WizardPage session (Back, or continuing forward again
@@ -97,7 +96,7 @@ function WizardPageInner({ applicationId, stepIdFromUrl, formId }: WizardPageInn
             send={(event) => actorRef.send(event)}
           />
         </Box>
-      </Paper>
+      </Box>
     </Layout>
   );
 }

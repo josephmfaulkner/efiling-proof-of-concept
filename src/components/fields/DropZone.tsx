@@ -27,10 +27,10 @@ export function DropZone({ id, value, onChange }: DropZoneProps) {
         if (file) onChange(file);
       }}
       sx={{
+        // Real colors from the app's own EvidenceUploaderDropzone.scss.
         border: '2px dashed',
-        borderColor: isDragging ? uswds.primary : uswds.baseLight,
-        bgcolor: isDragging ? uswds.primaryLighter : uswds.baseLightest,
-        borderRadius: 1,
+        borderColor: isDragging ? '#00476b' : '#cccccc',
+        bgcolor: isDragging ? '#e6f5fd' : '#f9f9f9',
         p: 3,
         textAlign: 'center',
       }}

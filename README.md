@@ -52,19 +52,38 @@ form works) and walk through the wizard.
 
 ## Look and feel
 
-The UI is built with [MUI](https://mui.com/) on a theme (`src/theme.ts`) approximating
-the U.S. Web Design System's default tokens, styled to match myUSCIS's real guided
-filing screens: a `.gov`-banner-style strip, a masthead, an info-callout pattern for
-step context, a sidebar section/step tree you can navigate back through, and a
-dashed drop-zone for evidence uploads. Two deliberate departures from literal
-myUSCIS parity:
+The UI is built with [MUI](https://mui.com/) on a theme (`src/theme.ts`) styled to
+match the real myUSCIS guided filing app, not just approximate it. The user supplied
+actual "Save Page As" captures of 44 real myUSCIS I-130 pages plus screenshots
+(`myUSCIS_Pages/`, not committed — local reference material only); those captures
+turned out to contain more real signal than a saved SPA snapshot normally would:
 
-- **No agency seal.** The masthead uses a generic mark instead of the real USCIS/DHS
-  emblem — that's a protected government insignia, not a reusable design asset like
-  USWDS itself is.
-- **No repeating "Add address" list/table pattern.** That's a genuinely new field
-  type (a repeating group), not a look-and-feel change — left as a natural follow-up
-  rather than half-built here.
+- The static chrome (banner, masthead, footer) is server-rendered and was captured
+  correctly, complete with the real `.uscis-banner-bar`/`.uscis-header` CSS, real
+  colors (e.g. the header's actual `#003366`, not a USWDS-default guess), and the
+  real DHS/USCIS logo, seal, and icon SVGs — all vendored into `src/assets/gov/` and
+  used as-is.
+- A handful of app components (the evidence uploader, address layout, radio helper
+  text, required-field styling) are captured with **genuine embedded sourcemaps**
+  pointing at their real `.scss` filenames — e.g. the required-field red is
+  confirmed `#cc3333` straight from the app's own `RequiredFieldsCopy.scss`, not a
+  guess.
+- Most MUI component styling (sidebar accordion, form controls) comes from MUI's
+  runtime CSS-in-JS, which a page save can't capture at all — those parts are
+  cross-checked against the screenshots instead, since that reconstruction is a
+  best-effort approximation, not captured fact.
+
+One deliberate departure: the `.gov` banner's real, literal text — "An official
+website of the United States government" — is reworded here (**"This is a
+prototype of a U.S. government-style website"**) since this is a local, unpublished
+study prototype, not an actual federal site; that's the one sentence in the whole
+UI it felt wrong to reuse verbatim even so. The rest of the banner (assets, layout,
+the full "Here's how you know" expand copy) and the footer's identifier section are
+otherwise faithful, each carrying its own explicit not-affiliated disclaimer.
+
+Still out of scope: the repeating "Add address" list/table pattern seen on a few
+real pages — that's a genuinely new field type (a repeating group), not a
+look-and-feel change, and is left as a natural follow-up.
 
 ## Hard-won findings about the real I-485 PDF
 
