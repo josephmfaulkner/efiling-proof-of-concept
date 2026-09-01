@@ -41,9 +41,9 @@ export function SchemaField({ field, visible, required }: SchemaFieldProps) {
     case 'select':
       return <SelectField field={field} required={required} register={register} error={error} />;
     case 'radio':
-      return <RadioField field={field} required={required} register={register} error={error} />;
+      return <RadioField field={field} required={required} control={control} error={error} />;
     case 'checkbox':
-      return <CheckboxField field={field} register={register} error={error} />;
+      return <CheckboxField field={field} control={control} error={error} />;
     case 'textarea':
       return <TextareaField field={field} required={required} register={register} error={error} />;
     case 'file':
