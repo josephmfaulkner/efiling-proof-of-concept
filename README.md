@@ -7,6 +7,10 @@ browser from data the applicant enters, with no backend.
 
 **Not affiliated with USCIS or DHS. Not legal advice. Not a real filing channel.**
 
+## Try it yourself: 
+You can try the [Guided Filing Demo here](https://josephmfaulkner.github.io/efiling-proof-of-concept/) as a GitHub page
+
+
 ## Running it
 
 ```bash
