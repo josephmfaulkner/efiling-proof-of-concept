@@ -32,7 +32,12 @@ export async function fillPdfTemplate(
   mapping: PdfMappingDocument,
   answers: Record<string, unknown>,
 ): Promise<Blob> {
-  const templateBytes = await fetch(templateUrl).then((res) => res.arrayBuffer());
+  // Every manifest.pdfTemplatePath is written root-relative (e.g. "/forms/i-130/template.pdf")
+  // for readability, but the app isn't always served from the domain root — GitHub Pages
+  // serves it at /<repo>/ (see vite.config.ts's `base`). Resolving against BASE_URL here,
+  // in the one place that actually fetches a template, keeps every manifest untouched.
+  const resolvedUrl = `${import.meta.env.BASE_URL}${templateUrl.replace(/^\//, '')}`;
+  const templateBytes = await fetch(resolvedUrl).then((res) => res.arrayBuffer());
   const pdfDoc = await PDFDocument.load(templateBytes);
   const form = pdfDoc.getForm();
 
