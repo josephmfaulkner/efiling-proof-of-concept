@@ -35,6 +35,69 @@ form works) and walk through the wizard.
    in JSON**, evaluated by [json-rules-engine](https://github.com/CacheControl/json-rules-engine),
    not hardcoded in components. See `src/forms/i-485/rules/i485.rules.json`.
 
+## Technologies Used
+
+To build an electronic filing experience as intuitive as a consumer order tracker while navigating the bureaucratic rigidity of USCIS Adjustment of Status paperwork, your application must solve three distinct architectural problems:
+
+How to decide what rules apply when immigration statutes and evidentiary requirements change overnight.
+
+How to coordinate the overall journey across multi-day sessions without allowing invalid navigation states.
+
+How to validate and sanitize granular user inputs so they comply with federal data standards before they reach the document assembly layer.
+
+The three libraries selected by Claude Code—json-rules-engine, xstate, and zod—form a decoupled pipeline where each tool handles exactly one of these responsibilities.
+
+### json-rules-engine: Externalizing Volatile Legal Logic
+Immigration regulations are inherently unstable. Filing fees update periodically, poverty guidelines fluctuate annually, and evidentiary requirements shift based on statutory nuances such as immediate relative exemptions under INA 245(c) or employment-based allowances under INA 245(k).
+
+If you hardcode these conditions into standard React components using nested conditional statements, every minor policy update forces an engineer to refactor, test, and redeploy the frontend bundle.
+
+json-rules-engine resolves this by separating business decisions from application code:
+
+Treating Law as Portable Data: The library evaluates dynamic conditions expressed entirely in structured JSON objects. A rule consists of "conditions" (boolean evaluations against facts) and an "event" (the outcome emitted when conditions are met).
+
+Powering the "Pizza Topping" Analogy: In your application, the base I-485 is the pizza crust. Whether an applicant requires an I-864 Affidavit of Support, an I-765 Work Authorization form, or a specific certified police disposition is analogous to conditional toppings. The engine takes the applicant's accumulated inputs—such as household size, reported income, entry category, and violation history—as its "facts," evaluates them against the ruleset, and emits directives outlining exactly which supplementary forms and documents must be attached.
+
+Zero-Recompile Maintenance: Because the business rules reside in plain JSON, they can be stored in a lightweight database, fetched from a remote content delivery network, or updated by non-engineers. When federal guidance changes, modifying that JSON document instantly updates application behavior in production without modifying a single line of React code.
+
+### xstate: Deterministic Workflow Orchestration
+A multi-step government wizard cannot rely on casual component state. Spreading dozens of boolean flags across React hooks—such as tracking whether someone is employed, whether they entered on a valid visa, or whether they completed the medical attestation—inevitably produces "impossible states," such as an applicant viewing the signature pad before verifying their eligibility grounds.
+
+xstate models the filing process as a formal finite state machine and statechart:
+
+Eliminating Navigation Chaos: Instead of guessing which screen to display next based on local component flags, xstate establishes rigid stages (such as Biographic Intake, Inadmissibility Screening, Evidence Collection, and Document Compilation). Transitions between stages can only occur when explicit, typed events are dispatched, preventing illegal jumps or skipped prerequisites.
+
+Enforcing Transitional Guards: When a user attempts to proceed to the next stage, state machine "guards" inspect the application state. If an applicant's household income fails to meet federal guidelines, a guard halts progression toward the final review and routes the workflow into a sub-state dedicated to collecting joint sponsor information.
+
+Session Persistence and Rehydration: Gathering immigration evidence often takes an applicant several days or weeks. xstate natively provides snapshot serialization. On every transition, the machine can serialize its exact position and runtime context into browser storage. When the applicant returns days later, the state machine rehydrates that snapshot, restoring their exact location in the process without losing accumulated data.
+
+Managing Heavy Asynchronous Tasks: Client-side document generation using tools like pdf-lib can strain the browser. xstate utilizes the Actor model to run background tasks—such as parsing templates, generating barcodes, or auto-saving drafts—as isolated actors with clean cancellation boundaries, ensuring background work never corrupts the active user interface.
+
+### zod: Schema Validation and Data Normalization
+While xstate governs macro-level navigation and json-rules-engine dictates legal outcomes, zod acts as the micro-level gatekeeper for every individual data point entered by the applicant. USCIS intake facilities operate automated scanning machinery with strict formatting rules; even small discrepancies, such as an improperly formatted Alien Registration Number or a blank line that should read "N/A," can trigger an administrative rejection.
+
+zod ensures that only clean, strictly typed payloads make it into your system:
+
+Granular, Type-Safe Validation: Paired directly with input controllers like React Hook Form, zod validates each step's inputs against an explicit schema before the user can trigger an xstate transition event. It guarantees that birthdates are in the past, phone numbers match recognized formats, and mandatory identifiers contain the exact expected character counts.
+
+Cross-Field Refinements: Immigration forms frequently demand conditional answers. For instance, Part 8 of Form I-485 contains dozens of inadmissibility questions. Using zod's refinement capabilities, you can enforce that if an applicant marks "Yes" to having ever been cited or detained, a corresponding explanation field immediately becomes mandatory, complete with tailored error messages.
+
+Payload Sanitation for PDF Filling: Official government templates require strict formatting conventions, including converting empty or unselected text regions to explicit strings like "None" or "N/A." zod schemas can include transformation logic that automatically coerces empty strings, normalizes dates to the required two-digit month, day, and four-digit year format, and trims whitespace before the final payload is handed off to the AcroForm injection script.
+
+How the Three Libraries Collaborate
+To picture the complete system in operation, consider a single user interaction during the filing process:
+
+Input and Validation: The applicant fills out their household and financial details. The localized interface hands the data to a zod schema. zod confirms that all financial fields contain positive numeric values, formats dates appropriately, and passes the validated payload forward.
+
+State Transition: The React view dispatches a submission event to the xstate orchestrator. xstate updates its central data context with the verified payload and moves the application to an evaluation state.
+
+Policy Evaluation: In that evaluation state, the machine invokes json-rules-engine, passing the updated context as runtime facts. The engine evaluates the income against external poverty thresholds and emits an event indicating that an I-864 joint sponsor packet and three years of tax transcripts are required.
+
+Dynamic Routing: Guided by the rules engine's findings, xstate transitions into an evidence-gathering state specifically configured for joint sponsor collection, dynamically appending that requirement to the applicant's checklist before ever proceeding to the final PDF generation step.
+
+By dividing the labor this way, the user interface remains lean, the legal requirements remain isolated in easily editable data structures, and the entire filing workflow remains strictly deterministic.
+
+
 ## Architecture
 
 - `src/engine/` — generic, form-agnostic code (schema → Zod, the wizard state
