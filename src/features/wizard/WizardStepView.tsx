@@ -24,6 +24,8 @@ interface WizardStepViewProps {
   send: (event: WizardEvent) => void;
   /** Lets the sidebar (a render sibling, not a descendant of this form) trigger this step's commit-and-navigate — see WizardPage.tsx. */
   registerNavigate: (fn: (stepId: string) => void) => void;
+  /** Reports this step's live (in-progress, uncommitted) rule evaluation up so the sidebar can reflect a just-answered field's effects immediately, not only after Next — see WizardPage.tsx. */
+  onLiveRulesChange: (result: RuleEvaluationResult) => void;
 }
 
 function defaultValueFor(field: StepSchema['fields'][number], existing: unknown) {
@@ -31,7 +33,17 @@ function defaultValueFor(field: StepSchema['fields'][number], existing: unknown)
   return field.type === 'checkbox' ? false : '';
 }
 
-export function WizardStepView({ step, manifest, rules, context, isFirstStep, onBackToDashboard, send, registerNavigate }: WizardStepViewProps) {
+export function WizardStepView({
+  step,
+  manifest,
+  rules,
+  context,
+  isFirstStep,
+  onBackToDashboard,
+  send,
+  registerNavigate,
+  onLiveRulesChange,
+}: WizardStepViewProps) {
   const zodSchema = useMemo(() => buildStepZodSchema(step), [step]);
   const defaultValues = useMemo(
     () => Object.fromEntries(step.fields.map((f) => [f.name, defaultValueFor(f, context.answers[f.name])])),
@@ -51,6 +63,15 @@ export function WizardStepView({ step, manifest, rules, context, isFirstStep, on
   // re-runs the actual rules engine when JSON.stringify(liveFacts) changes.
   const liveFacts = { ...context.answers, ...methods.watch() };
   const liveRules = useRuleEvaluation(rules, manifest, liveFacts);
+
+  // Same "no dependency array" reasoning as registerNavigate below: liveRules is only ever a
+  // *new* object reference when useRuleEvaluation's own effect actually recomputes it (its
+  // internal state), so this reports up on every real change without over-notifying on
+  // renders where nothing changed — see WizardPage.tsx for why the sidebar needs this at all
+  // (it can't see this step's in-progress, not-yet-committed field values otherwise).
+  useEffect(() => {
+    onLiveRulesChange(liveRules);
+  });
 
   /**
    * The one path every way of leaving this step goes through: grab whatever

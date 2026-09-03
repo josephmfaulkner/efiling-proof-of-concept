@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useActorRef, useSelector } from '@xstate/react';
 import { Box, Paper, Typography } from '@mui/material';
@@ -62,6 +62,19 @@ function WizardPageInner({ applicationId, stepIdFromUrl, formId }: WizardPageInn
   // WizardStepView hands WizardPage a fresh "commit and go there" closure every render.
   const navigateRef = useRef<(stepId: string) => void>(() => {});
 
+  // context.visibleSteps only updates once a step is actually committed (Next/Back/a sidebar
+  // jump) — so on its own, answering "Yes" here wouldn't unlock the next step in the sidebar
+  // until you left the page. This tracks the *current* step's live, not-yet-committed rule
+  // evaluation instead, so the sidebar reacts the instant a field changes. Unioned with
+  // context.visibleSteps below (never subtracted from) so a step already unlocked by an
+  // earlier commit can't flicker back to locked while this step's own live result briefly
+  // resets on remount (see WizardStepView's useRuleEvaluation).
+  const [liveVisibleSteps, setLiveVisibleSteps] = useState<Set<string>>(() => new Set());
+  const sidebarVisibleSteps = useMemo(
+    () => new Set([...snapshot.context.visibleSteps, ...liveVisibleSteps]),
+    [snapshot.context.visibleSteps, liveVisibleSteps],
+  );
+
   if (!step) return null; // mid-navigation to /evidence, or a not-yet-rendered redirect above
 
   return (
@@ -81,7 +94,7 @@ function WizardPageInner({ applicationId, stepIdFromUrl, formId }: WizardPageInn
           <SidebarNav
             steps={manifest.steps}
             currentStepId={currentStepId}
-            visibleSteps={snapshot.context.visibleSteps}
+            visibleSteps={sidebarVisibleSteps}
             onNavigate={(stepId) => navigateRef.current(stepId)}
           />
         </Box>
@@ -104,6 +117,7 @@ function WizardPageInner({ applicationId, stepIdFromUrl, formId }: WizardPageInn
             registerNavigate={(fn) => {
               navigateRef.current = fn;
             }}
+            onLiveRulesChange={(result) => setLiveVisibleSteps(result.visibleSteps)}
           />
         </Box>
       </Box>
