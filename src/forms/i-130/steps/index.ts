@@ -34,15 +34,24 @@ import { adjustmentOfStatusStep } from './31-adjustment-of-status';
 import { priorPetitionsStep } from './32-prior-petitions';
 import { otherPetitionsStep } from './33-other-petitions';
 import { nativeLanguageStep } from './34-native-language';
-import { officialStatementStep } from './43-official-statement';
-import { additionalInformationFreetextStep } from './44-additional-information-freetext';
+import { proofOfCitizenshipStep } from './35-proof-of-citizenship';
+import { proofOfLprStatusStep } from './36-proof-of-lawful-permanent-resident-status';
+import { proofOfMarriageStep } from './37-proof-of-marriage';
+import { evidenceEndOfYourPriorMarriageStep } from './38-evidence-end-of-your-prior-marriage';
+import { evidenceEndOfSpousesPriorMarriageStep } from './39-evidence-end-of-spouses-prior-marriage';
+import { photoOfYouStep } from './40-photo-of-you';
+import { photoOfSpouseStep } from './41-photo-of-spouse';
+import { additionalProofOfMarriageStep } from './42-additional-proof-of-marriage';
+import { i130aStep } from './43-i130a';
+import { officialStatementStep } from './44-official-statement';
+import { additionalInformationFreetextStep } from './45-additional-information-freetext';
 
 /**
- * Ordered to match the real myUSCIS I-130 sidebar (see myUSCIS_Pages/I-130,
- * page 45's fullest sidebar snapshot). File-upload-only real pages (35-42:
- * Proof of Status, Proof of Marriage, photos, Form I-130A, etc.) are not
- * step files here — they're routed through the generic evidence checklist,
- * see evidence/evidenceCatalog.ts.
+ * Ordered to match the real myUSCIS I-130 sidebar (see
+ * myUSCIS_Pages/I-130/37_EvidenceOfTheEndOfYourPriorMarriage's full sidebar
+ * snapshot, which is the most complete one captured): each evidence/upload
+ * page is a real step here, grouped under its own "Evidence" section — not
+ * routed through a separate, sidebar-detached evidence checklist screen.
  */
 export const i130Steps: StepSchema[] = [
   beforeYouStartStep,
@@ -80,6 +89,15 @@ export const i130Steps: StepSchema[] = [
   priorPetitionsStep,
   otherPetitionsStep,
   nativeLanguageStep,
+  proofOfCitizenshipStep,
+  proofOfLprStatusStep,
+  proofOfMarriageStep,
+  evidenceEndOfYourPriorMarriageStep,
+  evidenceEndOfSpousesPriorMarriageStep,
+  photoOfYouStep,
+  photoOfSpouseStep,
+  additionalProofOfMarriageStep,
+  i130aStep,
   officialStatementStep,
   additionalInformationFreetextStep,
 ];

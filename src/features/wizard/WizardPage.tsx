@@ -19,7 +19,7 @@ interface WizardPageInnerProps {
 
 function WizardPageInner({ applicationId, stepIdFromUrl, formId }: WizardPageInnerProps) {
   const navigate = useNavigate();
-  const { manifest, rules } = getForm(formId);
+  const { manifest, rules, evidenceCatalog } = getForm(formId);
   const machine = useMemo(() => buildWizardMachine(manifest), [manifest]);
   const restoredSnapshot = useMemo(() => loadSnapshot(applicationId), [applicationId]);
 
@@ -45,8 +45,13 @@ function WizardPageInner({ applicationId, stepIdFromUrl, formId }: WizardPageInn
       // stale snapshot — verified by hand: localStorage held the correct activeEvidence
       // moments later, but the already-rendered page never re-read it.
       saveSnapshot(applicationId, actorRef.getPersistedSnapshot());
+      // A form with no evidence catalog items collects its evidence entirely as real,
+      // sidebar-integrated wizard steps (see e.g. src/forms/i-130/steps/35-*.ts) — routing
+      // it through the generic checklist screen anyway would just re-show the same items a
+      // second time with no real upload mechanism of its own. Only forms whose evidence
+      // still lives in a catalog (e.g. I-485) go through that screen.
       updateApplication(applicationId, { status: 'evidence_review' });
-      navigate(`/apply/${applicationId}/evidence`, { replace: true });
+      navigate(evidenceCatalog.items.length > 0 ? `/apply/${applicationId}/evidence` : `/apply/${applicationId}/review`, { replace: true });
       return;
     }
     if (currentStepId !== stepIdFromUrl) {

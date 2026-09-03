@@ -24,12 +24,12 @@
     {
       "name": "showYourUsCitizenInformationStep",
       "conditions": { "all": [{ "fact": "immigrationStatus", "operator": "equal", "value": "citizen" }] },
-      "event": { "type": "showStep", "params": { "stepIds": ["your-us-citizen-information"] } }
+      "event": { "type": "showStep", "params": { "stepIds": ["your-us-citizen-information", "proof-of-citizenship"] } }
     },
     {
       "name": "showYourLawfulPermanentResidentInformationStep",
       "conditions": { "all": [{ "fact": "immigrationStatus", "operator": "equal", "value": "lpr" }] },
-      "event": { "type": "showStep", "params": { "stepIds": ["your-lawful-permanent-resident-information"] } }
+      "event": { "type": "showStep", "params": { "stepIds": ["your-lawful-permanent-resident-information", "proof-of-lpr-status"] } }
     },
     {
       "name": "revealNaturalizationCertificateFields",
@@ -44,12 +44,17 @@
     {
       "name": "showPriorMarriagesStep",
       "conditions": { "all": [{ "fact": "maritalStatus", "operator": "notEqual", "value": "single" }] },
-      "event": { "type": "showStep", "params": { "stepIds": ["prior-marriages"] } }
+      "event": { "type": "showStep", "params": { "stepIds": ["prior-marriages", "evidence-end-of-your-prior-marriage"] } }
     },
     {
       "name": "showAddressesLivedTogetherStep",
       "conditions": { "all": [{ "fact": "filingPetitionFor", "operator": "equal", "value": "spouse" }] },
-      "event": { "type": "showStep", "params": { "stepIds": ["addresses-lived-together"] } }
+      "event": {
+        "type": "showStep",
+        "params": {
+          "stepIds": ["addresses-lived-together", "proof-of-marriage", "photo-of-spouse", "additional-proof-of-marriage", "i130a"]
+        }
+      }
     },
     {
       "name": "showImmigrationProceedingsStep",
@@ -59,7 +64,7 @@
     {
       "name": "showPriorSpousesStep",
       "conditions": { "all": [{ "fact": "beneficiaryMaritalStatus", "operator": "notEqual", "value": "single" }] },
-      "event": { "type": "showStep", "params": { "stepIds": ["prior-spouses"] } }
+      "event": { "type": "showStep", "params": { "stepIds": ["prior-spouses", "evidence-end-of-spouses-prior-marriage"] } }
     },
     {
       "name": "revealPriorPetitionDetailFields",
@@ -76,61 +81,6 @@
             "priorPetitionDate",
             "priorPetitionResult"
           ]
-        }
-      }
-    },
-    {
-      "name": "citizenshipEvidence",
-      "conditions": { "all": [{ "fact": "immigrationStatus", "operator": "equal", "value": "citizen" }] },
-      "event": {
-        "type": "requireEvidence",
-        "params": {
-          "evidenceItems": ["proofOfCitizenship"],
-          "message": "Because you indicated you are a U.S. citizen, proof of citizenship is required."
-        }
-      }
-    },
-    {
-      "name": "lprStatusEvidence",
-      "conditions": { "all": [{ "fact": "immigrationStatus", "operator": "equal", "value": "lpr" }] },
-      "event": {
-        "type": "requireEvidence",
-        "params": {
-          "evidenceItems": ["proofOfLprStatus"],
-          "message": "Because you indicated you are a lawful permanent resident, proof of LPR status is required."
-        }
-      }
-    },
-    {
-      "name": "spousePetitionEvidence",
-      "conditions": { "all": [{ "fact": "filingPetitionFor", "operator": "equal", "value": "spouse" }] },
-      "event": {
-        "type": "requireEvidence",
-        "params": {
-          "evidenceItems": ["proofOfMarriage", "photoOfSpouse", "additionalProofOfMarriage", "formI130A"],
-          "message": "Because you are petitioning for your spouse, proof of marriage, a photo of your spouse, additional proof of marriage, and Form I-130A are required."
-        }
-      }
-    },
-    {
-      "name": "yourPriorMarriageEvidence",
-      "conditions": { "all": [{ "fact": "maritalStatus", "operator": "notEqual", "value": "single" }] },
-      "event": {
-        "type": "requireEvidence",
-        "params": {
-          "evidenceItems": ["evidenceEndOfYourPriorMarriage"],
-          "message": "Because you indicated a prior marriage, evidence that it ended is required."
-        }
-      }
-    },
-    {
-      "name": "beneficiaryPriorMarriageEvidence",
-      "conditions": { "all": [{ "fact": "beneficiaryMaritalStatus", "operator": "notEqual", "value": "single" }] },
-      "event": {
-        "type": "requireEvidence",
-        "params": {
-          "evidenceItems": ["evidenceEndOfSpousesPriorMarriage"],
-          "message": "Because you indicated your beneficiary had a prior marriage, evidence that it ended is required."
         }
       }
     }

@@ -2,7 +2,7 @@ import type { StepSchema } from '../../../engine/schema/types';
 
 export const officialStatementStep: StepSchema = {
   id: 'official-statement',
-  section: 'Additional Information',
+  section: 'Official Statement',
   title: 'Official Statement',
   content: [
     { type: 'heading', level: 3, text: 'Religious record' },
