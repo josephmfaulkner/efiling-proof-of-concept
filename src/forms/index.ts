@@ -4,12 +4,6 @@ import * as i130 from './i-130';
 import * as n400 from './n-400';
 import * as mockForm from './mock-form';
 
-registerForm({
-  manifest: i485.manifest,
-  rules: i485.rules,
-  pdfMapping: i485.pdfMapping,
-  evidenceCatalog: i485.evidenceCatalog,
-});
 
 registerForm({
   manifest: i130.manifest,
@@ -23,6 +17,13 @@ registerForm({
   rules: n400.rules,
   pdfMapping: n400.pdfMapping,
   evidenceCatalog: n400.evidenceCatalog,
+});
+
+registerForm({
+  manifest: i485.manifest,
+  rules: i485.rules,
+  pdfMapping: i485.pdfMapping,
+  evidenceCatalog: i485.evidenceCatalog,
 });
 
 registerForm({
