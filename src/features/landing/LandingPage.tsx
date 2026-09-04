@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Box, Button, Paper, Typography } from '@mui/material';
+import { Box, Button, MenuItem, Paper, Select, Typography, type SelectChangeEvent } from '@mui/material';
 import { listForms, getForm } from '../../engine/registry/formRegistry';
 import { createApplication } from '../../engine/persistence/applicationsRegistry';
 import { Layout } from '../../components/ui/Layout';
@@ -7,15 +8,18 @@ import { Layout } from '../../components/ui/Layout';
 export function LandingPage() {
   const navigate = useNavigate();
   const forms = listForms();
+  const [selectedFormId, setSelectedFormId] = useState('');
+  const selectedManifest = forms.find((m) => m.id === selectedFormId);
 
-  function handleStart(formId: string) {
-    const { manifest } = getForm(formId);
-    const application = createApplication(formId, manifest.shortTitle);
+  function handleStart() {
+    if (!selectedFormId) return;
+    const { manifest } = getForm(selectedFormId);
+    const application = createApplication(selectedFormId, manifest.shortTitle);
     navigate(`/apply/${application.id}/wizard/${manifest.steps[0].id}`);
   }
 
   return (
-    <Layout maxWidth="lg">
+    <Layout maxWidth="sm">
       <Box sx={{ mb: 6, textAlign: 'center' }}>
         <Typography variant="h1" sx={{ mb: 2 }}>
           Guided Filing, Without the Guesswork
@@ -27,23 +31,38 @@ export function LandingPage() {
         </Typography>
       </Box>
 
-      <Box sx={{ display: 'grid', gap: 3, gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' } }}>
-        {forms.map((manifest) => (
-          <Paper key={manifest.id} variant="outlined" sx={{ p: 3 }}>
-            <Typography variant="h3" sx={{ mb: 1 }}>
+      <Paper variant="outlined" sx={{ p: { xs: 3, sm: 5 } }}>
+        <Typography component="label" htmlFor="form-select" sx={{ fontWeight: 600, display: 'block', mb: 1 }}>
+          Which form would you like to file?
+        </Typography>
+        <Select
+          id="form-select"
+          fullWidth
+          displayEmpty
+          value={selectedFormId}
+          onChange={(event: SelectChangeEvent) => setSelectedFormId(event.target.value)}
+          sx={{ mb: 3 }}
+        >
+          <MenuItem value="" disabled>
+            Select a form
+          </MenuItem>
+          {forms.map((manifest) => (
+            <MenuItem key={manifest.id} value={manifest.id}>
               {manifest.shortTitle}
-            </Typography>
-            {manifest.description && (
-              <Typography variant="body2" sx={{ mb: 2, color: 'text.secondary' }}>
-                {manifest.description}
-              </Typography>
-            )}
-            <Button variant="contained" onClick={() => handleStart(manifest.id)}>
-              Start my application
-            </Button>
-          </Paper>
-        ))}
-      </Box>
+            </MenuItem>
+          ))}
+        </Select>
+
+        {selectedManifest?.description && (
+          <Typography variant="body2" sx={{ mb: 3, color: 'text.secondary' }}>
+            {selectedManifest.description}
+          </Typography>
+        )}
+
+        <Button variant="contained" disabled={!selectedFormId} onClick={handleStart}>
+          Start my application
+        </Button>
+      </Paper>
     </Layout>
   );
 }
