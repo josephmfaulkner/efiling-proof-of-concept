@@ -1,0 +1,23 @@
+import type { StepSchema } from '../../../engine/schema/types';
+
+/** Real page's trip list is repeating ("Add trip"); simplified to a single most-recent trip, revealed only after answering Yes. */
+export const travelOutsideUsStep: StepSchema = {
+  id: 'travel-outside-us',
+  section: 'About You',
+  title: 'Travel Outside the U.S.',
+  fields: [
+    {
+      name: 'hasTraveledOutsideUs',
+      label: 'Have you taken a trip outside of the United States in the last 5 years?',
+      type: 'radio',
+      helpText: 'Do not include trips where the entire trip was completed within 24 hours. Applicants filing as the spouse of a U.S. citizen, or under VAWA, should answer for the last 3 years.',
+      options: [
+        { value: 'Y', label: 'Yes' },
+        { value: 'N', label: 'No' },
+      ],
+    },
+    { name: 'tripDepartureDate', label: 'Date you left the United States (MM/DD/YYYY)', type: 'date', visibleWhen: { event: 'showField' } },
+    { name: 'tripReturnDate', label: 'Date you returned to the United States (MM/DD/YYYY)', type: 'date', visibleWhen: { event: 'showField' } },
+    { name: 'tripDestinationCountries', label: 'Countries you traveled to', type: 'text', visibleWhen: { event: 'showField' } },
+  ],
+};

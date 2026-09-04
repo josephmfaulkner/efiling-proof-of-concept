@@ -1,0 +1,211 @@
+{
+  "formId": "n-400",
+  "rules": [
+    {
+      "name": "revealPreparerInterpreterSubQuestions",
+      "conditions": { "all": [{ "fact": "hasHelper", "operator": "equal", "value": "Y" }] },
+      "event": { "type": "showField", "params": { "fieldNames": ["helperHasPreparer", "helperHasInterpreter"] } }
+    },
+    {
+      "name": "showPreparerInformationStep",
+      "conditions": { "all": [{ "fact": "helperHasPreparer", "operator": "equal", "value": "Y" }] },
+      "event": { "type": "showStep", "params": { "stepIds": ["preparer-information"] } }
+    },
+    {
+      "name": "showInterpreterInformationStep",
+      "conditions": { "all": [{ "fact": "helperHasInterpreter", "operator": "equal", "value": "Y" }] },
+      "event": { "type": "showStep", "params": { "stepIds": ["interpreter-information"] } }
+    },
+    {
+      "name": "revealOtherNameFields",
+      "conditions": { "all": [{ "fact": "hasUsedOtherNames", "operator": "equal", "value": "Y" }] },
+      "event": { "type": "showField", "params": { "fieldNames": ["otherNameFirstName", "otherNameMiddleName", "otherNameLastName"] } }
+    },
+    {
+      "name": "revealNameChangeFields",
+      "conditions": { "all": [{ "fact": "wantsNameChange", "operator": "equal", "value": "Y" }] },
+      "event": {
+        "type": "showField",
+        "params": { "fieldNames": ["newNameFirstName", "newNameMiddleName", "newNameLastName"] }
+      }
+    },
+    {
+      "name": "showEvidenceNameChangeStep",
+      "conditions": { "all": [{ "fact": "wantsNameChange", "operator": "equal", "value": "Y" }] },
+      "event": { "type": "showStep", "params": { "stepIds": ["evidence-name-change"] } }
+    },
+    {
+      "name": "revealTravelDetailFields",
+      "conditions": { "all": [{ "fact": "hasTraveledOutsideUs", "operator": "equal", "value": "Y" }] },
+      "event": { "type": "showField", "params": { "fieldNames": ["tripDepartureDate", "tripReturnDate", "tripDestinationCountries"] } }
+    },
+    {
+      "name": "revealChildDetailFields",
+      "conditions": { "all": [{ "fact": "totalNumberOfChildren", "operator": "notEqual", "value": "" }] },
+      "event": { "type": "showField", "params": { "fieldNames": ["childFirstName", "childLastName", "childDateOfBirth", "childCountryOfBirth"] } }
+    },
+    {
+      "name": "showEvidenceMarriageCertificateStep",
+      "conditions": { "all": [{ "fact": "maritalStatus", "operator": "notEqual", "value": "single" }] },
+      "event": { "type": "showStep", "params": { "stepIds": ["evidence-marriage-certificate"] } }
+    },
+    {
+      "name": "revealRegisteredToVoteExplanation",
+      "conditions": { "all": [{ "fact": "registeredToVote", "operator": "equal", "value": "Y" }] },
+      "event": { "type": "showField", "params": { "fieldNames": ["registeredToVoteExplanation"] } }
+    },
+    {
+      "name": "revealHereditaryTitleExplanation",
+      "conditions": { "all": [{ "fact": "hasHereditaryTitle", "operator": "equal", "value": "Y" }] },
+      "event": { "type": "showField", "params": { "fieldNames": ["hereditaryTitleExplanation"] } }
+    },
+    {
+      "name": "revealTaxExplanations",
+      "conditions": { "all": [{ "fact": "oweTaxes", "operator": "equal", "value": "Y" }] },
+      "event": { "type": "showField", "params": { "fieldNames": ["oweTaxesExplanation"] } }
+    },
+    {
+      "name": "showEvidenceTaxDocumentsStep",
+      "conditions": { "all": [{ "fact": "oweTaxes", "operator": "equal", "value": "Y" }] },
+      "event": { "type": "showStep", "params": { "stepIds": ["evidence-tax-documents"] } }
+    },
+    {
+      "name": "revealCalledNonResidentExplanation",
+      "conditions": { "all": [{ "fact": "calledNonResidentOnTaxReturn", "operator": "equal", "value": "Y" }] },
+      "event": { "type": "showField", "params": { "fieldNames": ["calledNonResidentExplanation"] } }
+    },
+    {
+      "name": "revealCommunistGroupExplanation",
+      "conditions": { "all": [{ "fact": "communistGroup", "operator": "equal", "value": "Y" }] },
+      "event": { "type": "showField", "params": { "fieldNames": ["communistGroupExplanation"] } }
+    },
+    {
+      "name": "revealAdvocatedOverthrowExplanation",
+      "conditions": { "all": [{ "fact": "advocatedOverthrow", "operator": "equal", "value": "Y" }] },
+      "event": { "type": "showField", "params": { "fieldNames": ["advocatedOverthrowExplanation"] } }
+    },
+    {
+      "name": "revealUsedWeaponAgainstPersonExplanation",
+      "conditions": { "all": [{ "fact": "usedWeaponAgainstPerson", "operator": "equal", "value": "Y" }] },
+      "event": { "type": "showField", "params": { "fieldNames": ["usedWeaponAgainstPersonExplanation"] } }
+    },
+    {
+      "name": "revealEngagedInKidnappingExplanation",
+      "conditions": { "all": [{ "fact": "engagedInKidnapping", "operator": "equal", "value": "Y" }] },
+      "event": { "type": "showField", "params": { "fieldNames": ["engagedInKidnappingExplanation"] } }
+    },
+    {
+      "name": "revealHelpGroupThreatenToUseWeaponExplanation",
+      "conditions": { "all": [{ "fact": "helpGroupThreatenToUseWeapon", "operator": "equal", "value": "Y" }] },
+      "event": { "type": "showField", "params": { "fieldNames": ["helpGroupThreatenToUseWeaponExplanation"] } }
+    },
+    {
+      "name": "revealPersecutedExplanation",
+      "conditions": { "all": [{ "fact": "persecuted", "operator": "equal", "value": "Y" }] },
+      "event": { "type": "showField", "params": { "fieldNames": ["persecutedExplanation"] } }
+    },
+    {
+      "name": "revealPartOfPoliceUnitExplanation",
+      "conditions": { "all": [{ "fact": "partOfPoliceUnit", "operator": "equal", "value": "Y" }] },
+      "event": { "type": "showField", "params": { "fieldNames": ["partOfPoliceUnitExplanation"] } }
+    },
+    {
+      "name": "revealWorkedAtDetentionFacilityExplanation",
+      "conditions": { "all": [{ "fact": "workedAtDetentionFacility", "operator": "equal", "value": "Y" }] },
+      "event": { "type": "showField", "params": { "fieldNames": ["workedAtDetentionFacilityExplanation"] } }
+    },
+    {
+      "name": "revealThreatenedToUseWeaponAgainstPersonExplanation",
+      "conditions": { "all": [{ "fact": "threatenedToUseWeaponAgainstPerson", "operator": "equal", "value": "Y" }] },
+      "event": { "type": "showField", "params": { "fieldNames": ["threatenedToUseWeaponAgainstPersonExplanation"] } }
+    },
+    {
+      "name": "revealInGroupThreatenUseWeaponAgainstPersonExplanation",
+      "conditions": { "all": [{ "fact": "inGroupThreatenUseWeaponAgainstPerson", "operator": "equal", "value": "Y" }] },
+      "event": { "type": "showField", "params": { "fieldNames": ["inGroupThreatenUseWeaponAgainstPersonExplanation"] } }
+    },
+    {
+      "name": "revealReceivedMilitaryOrWeaponTrainingExplanation",
+      "conditions": { "all": [{ "fact": "receivedMilitaryOrWeaponTraining", "operator": "equal", "value": "Y" }] },
+      "event": { "type": "showField", "params": { "fieldNames": ["receivedMilitaryOrWeaponTrainingExplanation"] } }
+    },
+    {
+      "name": "revealEngagePrositutionExplanation",
+      "conditions": { "all": [{ "fact": "engagePrositution", "operator": "equal", "value": "Y" }] },
+      "event": { "type": "showField", "params": { "fieldNames": ["engagePrositutionExplanation"] } }
+    },
+    {
+      "name": "revealHelpedIllegallyEnterExplanation",
+      "conditions": { "all": [{ "fact": "helpedIllegallyEnter", "operator": "equal", "value": "Y" }] },
+      "event": { "type": "showField", "params": { "fieldNames": ["helpedIllegallyEnterExplanation"] } }
+    },
+    {
+      "name": "revealPlacedInRemovalExplanation",
+      "conditions": { "all": [{ "fact": "placedInRemoval", "operator": "equal", "value": "Y" }] },
+      "event": { "type": "showField", "params": { "fieldNames": ["placedInRemovalExplanation"] } }
+    },
+    {
+      "name": "revealEverDeportedExplanation",
+      "conditions": { "all": [{ "fact": "everDeported", "operator": "equal", "value": "Y" }] },
+      "event": { "type": "showField", "params": { "fieldNames": ["everDeportedExplanation"] } }
+    },
+    {
+      "name": "revealRegisteredSelectiveServiceField",
+      "conditions": { "all": [{ "fact": "wasMaleAge18To26InUs", "operator": "equal", "value": "Y" }] },
+      "event": { "type": "showField", "params": { "fieldNames": ["registeredSelectiveService"] } }
+    },
+    {
+      "name": "showEvidenceSelectiveServiceStatusStep",
+      "conditions": { "all": [{ "fact": "registeredSelectiveService", "operator": "equal", "value": "N" }] },
+      "event": { "type": "showStep", "params": { "stepIds": ["evidence-selective-service-status"] } }
+    },
+    {
+      "name": "showOathOfAllegianceTwoStep",
+      "conditions": { "all": [{ "fact": "willingToTakeFullOath", "operator": "equal", "value": "N" }] },
+      "event": { "type": "showStep", "params": { "stepIds": ["oath-of-allegiance-2"] } }
+    },
+    {
+      "name": "showDisabilityRelatedEvidenceSteps",
+      "conditions": { "all": [{ "fact": "hasDisability", "operator": "equal", "value": "Y" }] },
+      "event": { "type": "showStep", "params": { "stepIds": ["evidence-n648", "evidence-legal-guardian"] } }
+    },
+    {
+      "name": "showEvidenceChildSpousalSupportStep",
+      "conditions": { "all": [{ "fact": "failedToSupportDependents", "operator": "equal", "value": "Y" }] },
+      "event": { "type": "showStep", "params": { "stepIds": ["evidence-child-spousal-support"] } }
+    },
+    {
+      "name": "showCrimesAndOffensesTwoStep",
+      "conditions": {
+        "any": [
+          { "fact": "committedNotArrested", "operator": "equal", "value": "Y" },
+          { "fact": "everArrested", "operator": "equal", "value": "Y" }
+        ]
+      },
+      "event": { "type": "showStep", "params": { "stepIds": ["crimes-and-offenses-2"] } }
+    },
+    {
+      "name": "showEvidenceArrestsWithoutChargesStep",
+      "conditions": { "all": [{ "fact": "committedNotArrested", "operator": "equal", "value": "Y" }] },
+      "event": { "type": "showStep", "params": { "stepIds": ["evidence-arrests-without-charges"] } }
+    },
+    {
+      "name": "showArrestRelatedStepsAndEvidence",
+      "conditions": { "all": [{ "fact": "everArrested", "operator": "equal", "value": "Y" }] },
+      "event": {
+        "type": "showStep",
+        "params": {
+          "stepIds": [
+            "crimes-and-offenses-3",
+            "evidence-arrests-with-charges",
+            "evidence-alternative-sentencing",
+            "evidence-convictions-sentences",
+            "evidence-arrests-removed",
+            "evidence-traffic-incidents",
+            "evidence-fines-restitution"
+          ]
+        }
+      }
+    }
+  ]
+}

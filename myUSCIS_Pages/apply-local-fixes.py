@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """
-apply-local-fixes.py  —  make the saved myUSCIS I-130 pages render offline.
+apply-local-fixes.py  —  make the saved myUSCIS form pages render offline.
 
-For every "USCIS - I-130*.html" under I-130/ this script:
+For every "USCIS - <form>*.html" under each form directory (I-130/, N-400/, …)
+this script:
 
   1. Neutralises the React/Webpack SPA entry chunks (runtime-*, 2288-*,
      index-*). Run from disk their API/session calls fail, React throws while
@@ -27,12 +28,16 @@ import sys
 
 ROOT = pathlib.Path(__file__).resolve().parent
 CSS_FILE = ROOT / "local-fixes.css"
-PAGES_DIR = ROOT / "I-130"
+# form directories whose saved "USCIS - *.html" pages get the offline fixes
+PAGES_DIRS = [ROOT / "I-130", ROOT / "N-400"]
 
 # the <script src> for a Webpack chunk — `(?<![-\w])` so we never match the
 # `src=` inside an already-rewritten `data-local-disabled-src=`
+# runtime-*, index-*, and any numbered Webpack vendor chunk (2288-*, 1424-*, …);
+# `application-*.js` is intentionally left enabled. `(?<![-\w])` so we never match
+# the `src=` inside an already-rewritten `data-local-disabled-src=`
 CHUNK_SRC_RE = re.compile(
-    r'(?<![-\w])src="(\.[^"]*?/(?:runtime-[0-9a-f]+|2288-[0-9a-f]+|index-[0-9a-f]+)\.js)"'
+    r'(?<![-\w])src="(\.[^"]*?/(?:runtime-[0-9a-f]+|[0-9]+-[0-9a-f]+|index-[0-9a-f]+)\.js)"'
 )
 STYLE_BLOCK_RE = re.compile(
     r'[ \t]*<style id="local-render-fixes">.*?</style>\n?', re.S
@@ -65,9 +70,11 @@ def main(argv: list[str]) -> int:
         return 1
     css = CSS_FILE.read_text(encoding="utf-8")
 
-    targets = [p for p in argv[1:]] or sorted(
-        str(p) for p in PAGES_DIR.glob("*/USCIS - I-130*.html")
-    )
+    targets = [p for p in argv[1:]]
+    if not targets:
+        for d in PAGES_DIRS:
+            targets.extend(str(p) for p in d.glob("*/USCIS - *.html"))
+        targets.sort()
     if not targets:
         print("no HTML pages found", file=sys.stderr)
         return 1

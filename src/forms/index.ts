@@ -1,6 +1,7 @@
 import { registerForm } from '../engine/registry/formRegistry';
 import * as i485 from './i-485';
 import * as i130 from './i-130';
+import * as n400 from './n-400';
 import * as mockForm from './mock-form';
 
 registerForm({
@@ -15,6 +16,13 @@ registerForm({
   rules: i130.rules,
   pdfMapping: i130.pdfMapping,
   evidenceCatalog: i130.evidenceCatalog,
+});
+
+registerForm({
+  manifest: n400.manifest,
+  rules: n400.rules,
+  pdfMapping: n400.pdfMapping,
+  evidenceCatalog: n400.evidenceCatalog,
 });
 
 registerForm({
