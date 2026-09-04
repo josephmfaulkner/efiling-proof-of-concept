@@ -1,6 +1,6 @@
 import type { StepSchema } from '../../../engine/schema/types';
 
-/** Real page's trip list is repeating ("Add trip"); simplified to a single most-recent trip, revealed only after answering Yes. */
+/** Real page's trip list is a repeating "Add trip" list, revealed only after answering Yes — see i-130/08-your-address-history.ts for the same list pattern. */
 export const travelOutsideUsStep: StepSchema = {
   id: 'travel-outside-us',
   section: 'About You',
@@ -16,8 +16,18 @@ export const travelOutsideUsStep: StepSchema = {
         { value: 'N', label: 'No' },
       ],
     },
-    { name: 'tripDepartureDate', label: 'Date you left the United States (MM/DD/YYYY)', type: 'date', visibleWhen: { event: 'showField' } },
-    { name: 'tripReturnDate', label: 'Date you returned to the United States (MM/DD/YYYY)', type: 'date', visibleWhen: { event: 'showField' } },
-    { name: 'tripDestinationCountries', label: 'Countries you traveled to', type: 'text', visibleWhen: { event: 'showField' } },
   ],
+  repeating: {
+    answerKey: 'trips',
+    entryNoun: 'trip',
+    summaryColumnLabel: 'Trip',
+    summaryFieldNames: ['tripDestinationCountries', 'tripDepartureDate', 'tripReturnDate'],
+    minEntries: 1,
+    visibleWhen: { event: 'showField' },
+    fields: [
+      { name: 'tripDepartureDate', label: 'Date you left the United States (MM/DD/YYYY)', type: 'date' },
+      { name: 'tripReturnDate', label: 'Date you returned to the United States (MM/DD/YYYY)', type: 'date' },
+      { name: 'tripDestinationCountries', label: 'Countries you traveled to', type: 'text' },
+    ],
+  },
 };

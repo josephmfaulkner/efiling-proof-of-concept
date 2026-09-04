@@ -38,6 +38,19 @@ export function findMissingRequiredFields(
         missing.push({ step, field });
       }
     }
+    // A repeating group's own required/format constraints are already enforced
+    // per-entry when each one is saved (see RepeatingGroupField) — the only thing
+    // left to gate here is "did you save enough of them at all".
+    if (step.repeating && ruleResult.visibleFields.has(step.repeating.answerKey)) {
+      const entries = (answers[step.repeating.answerKey] as unknown[] | undefined) ?? [];
+      const minEntries = step.repeating.minEntries ?? 1;
+      if (entries.length < minEntries) {
+        missing.push({
+          step,
+          field: { name: step.repeating.answerKey, label: `At least one ${step.repeating.entryNoun}`, type: 'text' },
+        });
+      }
+    }
   }
   return missing;
 }

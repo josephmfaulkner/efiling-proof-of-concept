@@ -64,6 +64,35 @@ export type ContentBlock =
   | { type: 'paragraph'; text: string }
   | { type: 'list'; items: string[] };
 
+/**
+ * Real myUSCIS pages that capture a theoretically-unlimited set of entries
+ * (address history, employers, prior marriages, additional-information
+ * responses, ...) all share the same UI pattern: a list of saved entries
+ * with Edit/Delete, an "Add ___" button opening a per-entry form, and
+ * "Save ___" / "Cancel" to return to the list (see RepeatingGroupField.tsx).
+ * A step using this stores its entries as one array under `answerKey` in
+ * `answers` instead of flat per-field keys, and leaves `StepSchema.fields`
+ * empty — `fields` here is validated and rendered exactly like a normal
+ * step's fields (same FieldSchema, same SchemaField dispatch), just once per
+ * entry rather than once for the whole step.
+ */
+export interface RepeatingGroupSchema {
+  /** Key in `answers` holding the array of saved entries. */
+  answerKey: string;
+  /** Fields captured per entry. */
+  fields: FieldSchema[];
+  /** Singular noun for UI copy: "Add {entryNoun}" / "Save {entryNoun}". */
+  entryNoun: string;
+  /** Summary table column header for the entry (e.g. "Address", "Employer"). */
+  summaryColumnLabel: string;
+  /** Field names (in order) joined into each saved entry's one-line summary. */
+  summaryFieldNames: string[];
+  /** Entries required before this group counts as complete on Review/Download. Default 1. */
+  minEntries?: number;
+  /** Same convention as FieldSchema.visibleWhen — for a group whose relevance depends on another field in the same step (e.g. trips only after answering "have you traveled" Yes). Absent = always visible. */
+  visibleWhen?: RuleRef;
+}
+
 export interface StepSchema {
   /** Also the XState state id and the wizard's :stepId route param. */
   id: string;
@@ -72,6 +101,8 @@ export interface StepSchema {
   /** Read-only body content shown before any fields. A step with content and no fields is a pure informational page (no validation, just a Continue button). */
   content?: ContentBlock[];
   fields: FieldSchema[];
+  /** When set, this step renders as a list-of-entries + add/edit form instead of `fields` (which stays `[]`) — see RepeatingGroupField.tsx. */
+  repeating?: RepeatingGroupSchema;
   visibleWhen?: RuleRef;
   /** Purely presentational grouping label for the sidebar nav (e.g. "About You"). Steps sharing a section render as one expandable group, myUSCIS-style. */
   section?: string;

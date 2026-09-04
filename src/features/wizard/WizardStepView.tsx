@@ -10,6 +10,7 @@ import { findNextVisibleStepId, findPreviousVisibleStepId } from '../../engine/m
 import { buildStepZodSchema } from '../../engine/schema/buildZodSchema';
 import { evaluateRules, useRuleEvaluation } from '../../engine/rules/rulesEngine';
 import { SchemaField } from '../../components/fields/SchemaField';
+import { RepeatingGroupField } from '../../components/fields/RepeatingGroupField';
 import { InfoCallout } from '../../components/layout/InfoCallout';
 import { StepContent } from '../../components/layout/StepContent';
 import { WizardNav } from './WizardNav';
@@ -46,7 +47,10 @@ export function WizardStepView({
 }: WizardStepViewProps) {
   const zodSchema = useMemo(() => buildStepZodSchema(step), [step]);
   const defaultValues = useMemo(
-    () => Object.fromEntries(step.fields.map((f) => [f.name, defaultValueFor(f, context.answers[f.name])])),
+    () => ({
+      ...Object.fromEntries(step.fields.map((f) => [f.name, defaultValueFor(f, context.answers[f.name])])),
+      ...(step.repeating ? { [step.repeating.answerKey]: context.answers[step.repeating.answerKey] ?? [] } : {}),
+    }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [step],
   );
@@ -84,7 +88,16 @@ export function WizardStepView({
    * Review/Download, not to leaving a step (see buildWizardMachine.ts).
    */
   async function commitAndGo(resolveTarget: (ruleResult: RuleEvaluationResult) => string) {
-    const values = methods.getValues();
+    const rawValues = methods.getValues();
+    // A repeating group's entries live only under its answerKey (an array) — every
+    // real PDF template mapped against one of these steps so far has exactly one
+    // row for it (see each form's pdfMapping.ts), so mirror the first saved entry's
+    // fields back onto the flat answer keys pdfMapping/Review already expect, same
+    // as when this was a single-entry step. (Some templates do have room for more
+    // rows — e.g. the N-400's employer/trip/crime lines — filling those isn't done
+    // yet; only the first entry reaches the generated PDF today.)
+    const mirrored = step.repeating ? ((rawValues[step.repeating.answerKey] as Record<string, unknown>[] | undefined)?.[0] ?? {}) : {};
+    const values = { ...rawValues, ...mirrored };
     const mergedAnswers = { ...context.answers, ...values };
     const ruleResult = await evaluateRules(rules, manifest, mergedAnswers);
     send({ type: 'NAVIGATE', stepId: resolveTarget(ruleResult), values, ruleResult });
@@ -120,6 +133,10 @@ export function WizardStepView({
         </Typography>
         {step.description && <InfoCallout>{step.description}</InfoCallout>}
         {step.content && <StepContent blocks={step.content} />}
+
+        {step.repeating && liveRules.visibleFields.has(step.repeating.answerKey) && (
+          <RepeatingGroupField group={step.repeating} />
+        )}
 
         {step.fields.map((field) => (
           <SchemaField

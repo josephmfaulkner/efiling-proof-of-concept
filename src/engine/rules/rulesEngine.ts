@@ -10,12 +10,24 @@ export interface RuleEvaluationResult {
   activeEvidence: Set<string>;
 }
 
+/**
+ * A repeating group's whole entry list is gated on `RepeatingGroupSchema.visibleWhen`
+ * exactly like a normal field's `visibleWhen` — folding its `answerKey` in here as a
+ * pseudo-field is what lets a rule reveal e.g. the "trips" list only once
+ * `hasTraveledOutsideUs` is Yes, reusing the existing showField event rather than a
+ * second visibility mechanism.
+ */
+function fieldsIncludingRepeating(step: FormManifest['steps'][number]) {
+  if (!step.repeating) return step.fields;
+  return [...step.fields, { name: step.repeating.answerKey, visibleWhen: step.repeating.visibleWhen } as const];
+}
+
 function emptyResult(manifest: FormManifest): RuleEvaluationResult {
   return {
     visibleSteps: new Set(manifest.steps.filter((s) => !s.visibleWhen).map((s) => s.id)),
     visibleFields: new Set(
       manifest.steps
-        .flatMap((s) => s.fields)
+        .flatMap(fieldsIncludingRepeating)
         .filter((f) => !f.visibleWhen)
         .map((f) => f.name),
     ),
@@ -68,7 +80,7 @@ export async function evaluateRules(
     ),
     visibleFields: new Set(
       manifest.steps
-        .flatMap((s) => s.fields)
+        .flatMap(fieldsIncludingRepeating)
         .filter((f) => !f.visibleWhen || shownFields.has(f.name))
         .map((f) => f.name),
     ),

@@ -5,7 +5,7 @@ import { getForm } from '../../engine/registry/formRegistry';
 import { loadSnapshot, extractContext, jumpToStep } from '../../engine/persistence/wizardPersistence';
 import { useRuleEvaluation } from '../../engine/rules/rulesEngine';
 import { findMissingRequiredFields } from '../../engine/validation/validateAnswers';
-import type { FieldSchema } from '../../engine/schema/types';
+import type { FieldSchema, RepeatingGroupSchema } from '../../engine/schema/types';
 import { Layout } from '../../components/ui/Layout';
 import { uswds } from '../../theme';
 
@@ -17,6 +17,48 @@ function formatAnswer(field: FieldSchema, value: unknown): string {
   }
   if (value instanceof File) return value.name;
   return String(value);
+}
+
+function RepeatingGroupReview({
+  repeating,
+  entries,
+  isMissing,
+}: {
+  repeating: RepeatingGroupSchema;
+  entries: Record<string, unknown>[];
+  isMissing: boolean;
+}) {
+  if (entries.length === 0) {
+    return (
+      <Box sx={{ px: 2, py: 1.25, bgcolor: isMissing ? uswds.errorLighter : undefined }}>
+        <Typography variant="body2" sx={{ color: isMissing ? 'error.main' : 'text.secondary', fontWeight: isMissing ? 600 : 400 }}>
+          {isMissing ? `Required — at least one ${repeating.entryNoun} is missing` : 'None entered.'}
+        </Typography>
+      </Box>
+    );
+  }
+
+  return (
+    <Stack spacing={2} sx={{ px: 2, py: 1.25 }}>
+      {entries.map((entry, i) => (
+        <Box key={i}>
+          <Typography variant="body2" sx={{ fontWeight: 700, mb: 0.5 }}>
+            {repeating.summaryColumnLabel} {i + 1}
+          </Typography>
+          {repeating.fields.map((field) => (
+            <Box key={field.name} sx={{ display: 'flex', justifyContent: 'space-between', gap: 2 }}>
+              <Typography variant="body2" sx={{ color: uswds.ink }}>
+                {field.label}
+              </Typography>
+              <Typography variant="body2" sx={{ fontWeight: 600, textAlign: 'right' }}>
+                {formatAnswer(field, entry[field.name])}
+              </Typography>
+            </Box>
+          ))}
+        </Box>
+      ))}
+    </Stack>
+  );
 }
 
 export function ReviewPage() {
@@ -123,6 +165,13 @@ export function ReviewPage() {
                           </Box>
                         );
                       })}
+                    {step.repeating && ruleResult.visibleFields.has(step.repeating.answerKey) && (
+                      <RepeatingGroupReview
+                        repeating={step.repeating}
+                        entries={(answers[step.repeating.answerKey] as Record<string, unknown>[] | undefined) ?? []}
+                        isMissing={missing.some((m) => m.step.id === step.id && m.field.name === step.repeating!.answerKey)}
+                      />
+                    )}
                   </Box>
                 </Box>
               );

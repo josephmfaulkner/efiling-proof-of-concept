@@ -37,12 +37,12 @@
     {
       "name": "revealTravelDetailFields",
       "conditions": { "all": [{ "fact": "hasTraveledOutsideUs", "operator": "equal", "value": "Y" }] },
-      "event": { "type": "showField", "params": { "fieldNames": ["tripDepartureDate", "tripReturnDate", "tripDestinationCountries"] } }
+      "event": { "type": "showField", "params": { "fieldNames": ["trips"] } }
     },
     {
       "name": "revealChildDetailFields",
       "conditions": { "all": [{ "fact": "totalNumberOfChildren", "operator": "notEqual", "value": "" }] },
-      "event": { "type": "showField", "params": { "fieldNames": ["childFirstName", "childLastName", "childDateOfBirth", "childCountryOfBirth"] } }
+      "event": { "type": "showField", "params": { "fieldNames": ["children"] } }
     },
     {
       "name": "showEvidenceMarriageCertificateStep",

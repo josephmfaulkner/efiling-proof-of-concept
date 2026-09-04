@@ -61,10 +61,25 @@ export function buildFieldZodType(field: FieldSchema): z.ZodTypeAny {
   }
 }
 
+/** Reusable across a normal step's `fields` and a repeating group's per-entry `fields`. */
+export function buildFieldsZodSchema(fields: FieldSchema[]) {
+  const shape: Record<string, z.ZodTypeAny> = {};
+  for (const field of fields) {
+    shape[field.name] = buildFieldZodType(field);
+  }
+  return z.object(shape);
+}
+
 export function buildStepZodSchema(step: StepSchema) {
   const shape: Record<string, z.ZodTypeAny> = {};
   for (const field of step.fields) {
     shape[field.name] = buildFieldZodType(field);
+  }
+  if (step.repeating) {
+    // Each entry is already validated against its own per-field constraints when
+    // it's saved (see RepeatingGroupField's EntryForm) — the outer step form only
+    // ever holds the array of already-validated entries as an opaque value.
+    shape[step.repeating.answerKey] = z.array(z.record(z.string(), z.unknown()));
   }
   return z.object(shape);
 }
