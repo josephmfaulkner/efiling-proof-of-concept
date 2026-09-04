@@ -7,6 +7,7 @@
 
 export type FieldType =
   | 'text'
+  | 'integer'
   | 'date'
   | 'ssn'
   | 'aNumber'
@@ -28,6 +29,9 @@ export interface FieldConstraints {
   /** Regex source (no slashes/flags). */
   pattern?: string;
   patternMessage?: string;
+  /** 'integer' only — inclusive numeric bounds (e.g. a weight of 30-699 lbs). */
+  min?: number;
+  max?: number;
 }
 
 /**

@@ -1,6 +1,7 @@
 import { useFormContext } from 'react-hook-form';
 import type { FieldSchema } from '../../engine/schema/types';
 import { TextField } from './TextField';
+import { IntegerField } from './IntegerField';
 import { DateField } from './DateField';
 import { SelectField } from './SelectField';
 import { RadioField } from './RadioField';
@@ -36,6 +37,8 @@ export function SchemaField({ field, visible, required }: SchemaFieldProps) {
     case 'ssn':
     case 'aNumber':
       return <TextField field={field} required={required} register={register} error={error} />;
+    case 'integer':
+      return <IntegerField field={field} required={required} register={register} error={error} />;
     case 'date':
       return <DateField field={field} required={required} register={register} error={error} />;
     case 'select':

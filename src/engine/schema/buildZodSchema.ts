@@ -5,12 +5,14 @@ const DEFAULT_PATTERNS: Partial<Record<FieldSchema['type'], RegExp>> = {
   ssn: /^\d{3}-?\d{2}-?\d{4}$/,
   aNumber: /^A?-?\d{7,9}$/,
   date: /^\d{4}-\d{2}-\d{2}$/,
+  integer: /^\d+$/,
 };
 
 const DEFAULT_MESSAGES: Partial<Record<FieldSchema['type'], string>> = {
   ssn: 'Enter a 9-digit Social Security Number',
   aNumber: 'Enter a 7-9 digit A-Number',
   date: 'Enter a valid date',
+  integer: 'Enter a non-negative whole number',
 };
 
 /**
@@ -32,6 +34,26 @@ export function buildFieldZodType(field: FieldSchema): z.ZodTypeAny {
       return required
         ? z.instanceof(File, { message: `${field.label} is required` })
         : z.instanceof(File).optional();
+    }
+    case 'integer': {
+      // The `^\d+$` pattern alone already rules out a minus sign or a decimal
+      // point — "non-negative whole number" is guaranteed by the format check,
+      // not a separate rule. min/max (e.g. a weight of 30-699 lbs) are just
+      // tighter, field-specific bounds on top of that.
+      const c = field.constraints;
+      const pattern = c?.pattern ? new RegExp(c.pattern) : DEFAULT_PATTERNS.integer!;
+      let numStr: z.ZodTypeAny = z.string().regex(pattern, c?.patternMessage ?? DEFAULT_MESSAGES.integer!);
+      if (c?.min !== undefined) {
+        const min = c.min;
+        numStr = numStr.refine((v: string) => Number(v) >= min, { message: `${field.label} must be ${min} or greater` });
+      }
+      if (c?.max !== undefined) {
+        const max = c.max;
+        numStr = numStr.refine((v: string) => Number(v) <= max, { message: `${field.label} must be ${max} or less` });
+      }
+      if (required) return z.string().min(1, `${field.label} is required`).pipe(numStr);
+      // Optional integer fields still arrive as '' from an untouched controlled input.
+      return z.union([numStr, z.literal('')]).optional();
     }
     case 'select':
     case 'radio': {

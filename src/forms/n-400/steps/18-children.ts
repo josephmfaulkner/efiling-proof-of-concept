@@ -6,7 +6,7 @@ export const childrenStep: StepSchema = {
   section: 'Your Family',
   title: 'Children',
   description: 'You must indicate ALL children under 18 years of age, including children born in the U.S. or elsewhere, stepchildren, legally adopted children, and children born outside of marriage.',
-  fields: [{ name: 'totalNumberOfChildren', label: 'How many children do you have?', type: 'text' }],
+  fields: [{ name: 'totalNumberOfChildren', label: 'How many children do you have?', type: 'integer', constraints: { min: 0 } }],
   repeating: {
     answerKey: 'children',
     entryNoun: 'child',

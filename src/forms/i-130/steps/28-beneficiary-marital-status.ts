@@ -19,6 +19,6 @@ export const beneficiaryMaritalStatusStep: StepSchema = {
         { value: 'annulled', label: 'Marriage Annulled' },
       ],
     },
-    { name: 'beneficiaryTimesMarried', label: 'How many times has your beneficiary been married?', type: 'text', constraints: { required: true } },
+    { name: 'beneficiaryTimesMarried', label: 'How many times has your beneficiary been married?', type: 'integer', constraints: { required: true, min: 0 } },
   ],
 };
